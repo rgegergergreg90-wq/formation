@@ -592,13 +592,19 @@
 
 <!-- ── HEADER ── -->
 <header>
-  <div class="logo">
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="14" cy="14" r="13" stroke="#4caf50" stroke-width="2"/>
-      <path d="M14 4 L14 24 M4 14 L24 14" stroke="#4caf50" stroke-width="1.5"/>
-      <circle cx="14" cy="14" r="4" fill="#4caf50"/>
-    </svg>
-    Milica — CQB
+  <div style="display:flex;align-items:center;gap:1rem">
+    <a href="index.html" title="Retour au hub" style="display:flex;align-items:center;gap:.4rem;color:var(--text2);text-decoration:none;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);border-radius:6px;padding:.3rem .7rem;transition:color .2s,border-color .2s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 1L3 6l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Accueil
+    </a>
+    <div class="logo">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="13" stroke="#4caf50" stroke-width="2"/>
+        <path d="M14 4 L14 24 M4 14 L24 14" stroke="#4caf50" stroke-width="1.5"/>
+        <circle cx="14" cy="14" r="4" fill="#4caf50"/>
+      </svg>
+      Milica — CQB
+    </div>
   </div>
   <nav>
     <a href="#intro">Introduction</a>
