@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formation CQB — Forces Armées de Cayo Perico</title>
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --bg2: #13180f;
+    --bg3: #1a2012;
+    --card: #1e2518;
+    --border: #2e3d20;
+    --green: #4caf50;
+    --green2: #6fcf4a;
+    --red: #d93025;
+    --amber: #f5a623;
+    --text: #c8d4b0;
+    --text2: #8a9970;
+    --white: #eef3e2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(13,15,14,.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: .05em;
+    color: var(--green2);
+    text-transform: uppercase;
+  }
+  .logo svg { width:28px; height:28px; }
+  nav { display:flex; gap:1.2rem; flex-wrap:wrap; }
+  nav a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: .78rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  nav a:hover { color: var(--green2); }
+
+  /* ── TOOLTIP GLOSSAIRE ── */
+  .gl {
+    border-bottom: 1px dashed var(--green2);
+    cursor: help;
+    position: relative;
+  }
+  .gl-tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d1f0a;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    padding: .5rem .8rem;
+    font-size: .78rem;
+    color: var(--text);
+    width: 220px;
+    z-index: 200;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+  .gl-tip::after {
+    content:'';
+    position:absolute;
+    top:100%; left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:#0d1f0a;
+  }
+  .gl:hover .gl-tip { display:block; }
+
+  /* ── TIMELINE ── */
+  .timeline { position:relative; padding-left:2rem; }
+  .timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--border); }
+  .tl-item { position:relative; margin-bottom:2rem; }
+  .tl-dot {
+    position:absolute; left:-2rem; top:2px;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--card); border:2px solid var(--green);
+    display:flex; align-items:center; justify-content:center;
+    font-size:.65rem; font-weight:800; color:var(--green2);
+    transition:background .3s, border-color .3s;
+  }
+  .tl-item.active .tl-dot { background:var(--green); color:#000; border-color:var(--green2); }
+  .tl-item.done .tl-dot { background:var(--green); color:#000; border-color:var(--green); }
+  .tl-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:8px; padding:1rem 1.2rem;
+    cursor:pointer; transition:border-color .2s, box-shadow .2s;
+  }
+  .tl-item.active .tl-card { border-color:var(--green); box-shadow:0 0 0 1px rgba(76,175,80,.2); }
+  .tl-item.done .tl-card { border-color:#2e4d2e; opacity:.7; }
+  .tl-card h3 { font-size:.95rem; margin-bottom:.3rem; }
+  .tl-detail { display:none; margin-top:.7rem; font-size:.88rem; color:var(--text2); }
+  .tl-item.active .tl-detail { display:block; }
+
+  /* ── QUIZ ── */
+  .quiz-box { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.8rem; }
+  .quiz-q { font-size:1rem; font-weight:600; color:var(--white); margin-bottom:1.2rem; }
+  .quiz-q .q-num { color:var(--green2); font-size:.8rem; letter-spacing:.1em; display:block; margin-bottom:.3rem; text-transform:uppercase; }
+  .quiz-options { display:flex; flex-direction:column; gap:.6rem; }
+  .quiz-opt {
+    background:var(--bg3); border:1px solid var(--border);
+    border-radius:6px; padding:.8rem 1rem;
+    cursor:pointer; text-align:left; color:var(--text);
+    font-size:.9rem; transition:border-color .2s, background .2s;
+    width:100%;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color:var(--green2); background:#1e2e18; }
+  .quiz-opt.correct { border-color:var(--green); background:#0f2212; color:var(--green2); }
+  .quiz-opt.wrong { border-color:var(--red); background:#2a1010; color:#ff8a80; }
+  .quiz-feedback { margin-top:1rem; padding:.8rem 1rem; border-radius:6px; font-size:.88rem; display:none; }
+  .quiz-feedback.show { display:block; }
+  .quiz-feedback.ok { background:#0f2212; border-left:3px solid var(--green); color:var(--green2); }
+  .quiz-feedback.ko { background:#2a1010; border-left:3px solid var(--red); color:#ff8a80; }
+  .quiz-nav { display:flex; justify-content:space-between; align-items:center; margin-top:1.2rem; }
+  .quiz-nav button {
+    background:var(--green); color:#000; border:none;
+    padding:.6rem 1.4rem; font-size:.82rem; font-weight:700;
+    border-radius:4px; cursor:pointer; transition:background .2s;
+    letter-spacing:.06em; text-transform:uppercase;
+  }
+  .quiz-nav button:hover { background:var(--green2); }
+  .quiz-nav button:disabled { opacity:.3; cursor:default; }
+  .quiz-score { text-align:center; padding:2rem; }
+  .quiz-score .score-num { font-size:3.5rem; font-weight:800; color:var(--green2); }
+  .quiz-progress { display:flex; gap:.3rem; margin-bottom:1.5rem; }
+  .quiz-pip { flex:1; height:4px; background:var(--border); border-radius:2px; transition:background .3s; }
+  .quiz-pip.done { background:var(--green); }
+  .quiz-pip.active { background:var(--amber); }
+
+  /* ── CHECKLIST ── */
+  .checklist { display:flex; flex-direction:column; gap:.5rem; }
+  .cl-item {
+    display:flex; align-items:center; gap:.9rem;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:.9rem 1rem; cursor:pointer;
+    transition:border-color .2s, background .2s;
+    user-select:none;
+  }
+  .cl-item.checked { border-color:var(--green); background:#0f2212; }
+  .cl-check {
+    width:20px; height:20px; border-radius:4px;
+    border:2px solid var(--border); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.75rem; transition:all .2s;
+  }
+  .cl-item.checked .cl-check { background:var(--green); border-color:var(--green); color:#000; }
+  .cl-text { font-size:.9rem; }
+  .cl-item.checked .cl-text { color:var(--text2); text-decoration:line-through; }
+  .cl-group-label { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--green2); margin:1rem 0 .4rem; }
+  .cl-progress-bar { height:6px; background:var(--border); border-radius:3px; margin:1rem 0; overflow:hidden; }
+  .cl-progress-fill { height:100%; background:var(--green); border-radius:3px; transition:width .3s; }
+
+  /* ── CARTE TACTIQUE ── */
+  .tac-room {
+    cursor:pointer; transition:opacity .2s;
+  }
+  .tac-room rect { transition:fill .3s, stroke .3s; }
+  .tac-room:hover rect { opacity:.85; }
+  .tac-btn-row { display:flex; gap:.7rem; margin-top:1rem; flex-wrap:wrap; }
+  .tac-btn {
+    background:var(--bg3); border:1px solid var(--border);
+    color:var(--text); padding:.5rem 1rem; border-radius:4px;
+    cursor:pointer; font-size:.8rem; transition:all .2s;
+  }
+  .tac-btn:hover { border-color:var(--green2); color:var(--green2); }
+  .tac-btn.active { background:var(--green); color:#000; border-color:var(--green2); font-weight:700; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    top: 60px; left: 0;
+    height: 3px;
+    background: var(--green2);
+    width: 0%;
+    z-index: 99;
+    transition: width .1s;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, #1e3a14 0%, var(--bg) 70%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234caf50' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+  .classification {
+    font-size: .7rem;
+    letter-spacing: .3em;
+    color: var(--red);
+    text-transform: uppercase;
+    border: 1px solid var(--red);
+    padding: .3rem 1.2rem;
+    margin-bottom: 2rem;
+    animation: pulse-red 2s infinite;
+  }
+  @keyframes pulse-red {
+    0%,100% { opacity:1; }
+    50% { opacity: .6; }
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .hero h1 span { color: var(--green2); }
+  .hero p {
+    max-width: 600px;
+    margin: 1.5rem auto;
+    color: var(--text2);
+    font-size: 1rem;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .3rem .9rem;
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--green2);
+    margin-top: 1rem;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text2);
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    animation: bounce .6s ease infinite alternate;
+  }
+  @keyframes bounce {
+    to { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+  section { padding: 6rem 0; }
+  section:nth-child(even) { background: var(--bg2); }
+
+  .section-label {
+    font-size: .7rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--green2);
+    margin-bottom: .5rem;
+  }
+  h2 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: .5rem;
+  }
+  p { margin-bottom: 1rem; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  .card-grid {
+    display: grid;
+    gap: 1.2rem;
+  }
+  .card-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); }
+  .card-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
+
+  /* ── ALERT ── */
+  .alert {
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    gap: .8rem;
+    align-items: flex-start;
+    margin: 1.5rem 0;
+  }
+  .alert-red { background:#2a1010; border-left: 3px solid var(--red); }
+  .alert-amber { background:#2a1e08; border-left: 3px solid var(--amber); }
+  .alert-green { background:#0f2212; border-left: 3px solid var(--green); }
+  .alert-icon { font-size:1.2rem; flex-shrink:0; margin-top:.05rem; }
+  .alert-red .alert-title { color: var(--red); font-weight:700; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.3rem; }
+  .alert-amber .alert-title { color: var(--amber); font-weight:700; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.3rem; }
+  .alert-green .alert-title { color: var(--green); font-weight:700; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; margin-bottom:.3rem; }
+
+  /* ── MODAL DISCLAIMER ── */
+  #disclaimer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.92);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .disclaimer-box {
+    background: var(--bg3);
+    border: 1px solid var(--red);
+    border-radius: 10px;
+    max-width: 600px;
+    width: 100%;
+    padding: 2.5rem;
+    text-align: center;
+  }
+  .disclaimer-box .cls-label {
+    font-size: .65rem;
+    letter-spacing: .4em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: pulse-red 2s infinite;
+  }
+  .disclaimer-box h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+  .disclaimer-box p { font-size:.88rem; color: var(--text2); margin-bottom: 1rem; }
+  .disclaimer-box .author { font-size:.75rem; color: var(--text2); margin-top:1.5rem; }
+  #confirm-btn {
+    margin-top: 1.5rem;
+    background: var(--green);
+    color: #000;
+    border: none;
+    padding: .8rem 2.5rem;
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  #confirm-btn:hover { background: var(--green2); transform: scale(1.02); }
+
+  /* ── PHASE TABS ── */
+  .tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    padding: .9rem 1rem;
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+    border-right: 1px solid var(--border);
+  }
+  .tab-btn:last-child { border-right:none; }
+  .tab-btn.active { background: var(--green); color: #000; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn .3s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+  /* ── ACCORDION ── */
+  .accordion { display: flex; flex-direction: column; gap: .5rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .acc-header {
+    width:100%; background:none; border:none; text-align:left;
+    padding: 1rem 1.2rem;
+    color: var(--white);
+    font-weight: 600;
+    font-size: .9rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background .2s;
+  }
+  .acc-header:hover { background: rgba(76,175,80,.07); }
+  .acc-chevron { transition: transform .3s; font-size: 1rem; color: var(--green2); }
+  .acc-item.open .acc-chevron { transform: rotate(90deg); }
+  .acc-body { display: none; padding: 0 1.2rem 1rem; color: var(--text); font-size: .9rem; }
+  .acc-item.open .acc-body { display: block; animation: fadeIn .2s; }
+
+  /* ── IMAGE GRID ── */
+  .img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .img-grid img {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform .2s, border-color .2s;
+    background: #000;
+  }
+  .img-grid img:hover { transform: scale(1.02); border-color: var(--green); }
+
+  /* ── LIGHTBOX ── */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.93);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 0 60px rgba(0,0,0,.8);
+  }
+  #lightbox-close {
+    position:absolute; top:1.5rem; right:1.5rem;
+    background:none; border:none; color:#fff; font-size:2rem; cursor:pointer;
+  }
+
+  /* ── STEP INDICATOR ── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 1rem; }
+  .step-line { display: flex; flex-direction: column; align-items: center; }
+  .step-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: .85rem;
+    flex-shrink: 0;
+  }
+  .step-connector { width: 2px; flex: 1; background: var(--border); margin: 4px 0; }
+  .step:last-child .step-connector { display: none; }
+  .step-body { padding-bottom: 1.8rem; }
+  .step-body h3 { margin-bottom: .3rem; }
+
+  /* ── DIAGRAM ── */
+  .diagram-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+    overflow: hidden;
+  }
+  .diagram-wrap svg { max-width: 100%; }
+
+  /* ── STAT CARDS ── */
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--green2);
+    line-height: 1;
+  }
+  .stat-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text2); margin-top: .4rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--text2);
+  }
+
+  /* ── IMAGE SLIDE PAIR ── */
+  .slide-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media(max-width:700px) { .slide-pair { grid-template-columns:1fr; } }
+
+  /* ── ANIMATED DIAGRAM ── */
+  #anim-btn {
+    background: var(--green);
+    color: #000;
+    border: none;
+    padding: .6rem 1.5rem;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background .2s;
+  }
+  #anim-btn:hover { background: var(--green2); }
+  .anim-label {
+    fill: #c8d4b0;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 11px;
+  }
+  .soldier-alpha { fill: #4caf50; }
+  .soldier-bravo { fill: #2196F3; }
+  .building-fill { fill: #1e2518; stroke: #4caf50; stroke-width: 2; }
+  .window-rect { fill: #d93025; stroke: #ff6b6b; stroke-width:1.5; }
+  .route-path { fill:none; stroke-width:2.5; stroke-dasharray:8,4; }
+  .route-alpha { stroke: #4caf50; }
+  .route-bravo { stroke: #2196F3; }
+</style>
+</head>
+<body>
+
+<!-- ── DISCLAIMER MODAL ── -->
+<div id="disclaimer-overlay">
+  <div class="disclaimer-box">
+    <div class="cls-label">⚠ Document Classifié — Accès Restreint</div>
+    <h2>Avertissement Légal</h2>
+    <p>Par l'accès à ce document, vous confirmez que vous êtes un agent habilité des <strong>Forces Armées de Cayo Perico</strong> dans l'exercice régulier de vos fonctions.</p>
+    <p>Vous vous engagez également à ne pas dupliquer, copier ou reproduire de quelque manière que ce soit ce document ou son contenu.<br>
+    Tout accès confié à une personne ne faisant pas partie de l'armée est exposé à des sanctions.</p>
+    <button id="confirm-btn" onclick="dismissDisclaimer()">Je confirme mon identité — Accéder</button>
+    <p class="author">Réalisé par 06</p>
+  </div>
+</div>
+
+<!-- ── PROGRESS BAR ── -->
+<div id="progress-bar"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="13" stroke="#4caf50" stroke-width="2"/>
+      <path d="M14 4 L14 24 M4 14 L24 14" stroke="#4caf50" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="4" fill="#4caf50"/>
+    </svg>
+    Milica — CQB
+  </div>
+  <nav>
+    <a href="#intro">Introduction</a>
+    <a href="#encerclement">Encerclement</a>
+    <a href="#entree">Entrée</a>
+    <a href="#escaliers">Escaliers</a>
+    <a href="#phases">Phases</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#carte">Carte</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#glossaire">Glossaire</a>
+    <a href="#galerie">Galerie</a>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero" id="top">
+  <div class="classification">⚠ Document Classifié — Usage Interne Uniquement</div>
+  <h1>Formation <span>CQB</span></h1>
+  <p>Close Quarter Battle — Procédures d'intervention en bâtiment pour les militaires terrestres des Forces Armées de Cayo Perico.</p>
+  <span class="badge">Groupes Alpha · Bravo · Charlie</span>
+  <div class="scroll-hint">
+    <span>Défiler pour lire</span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ── INTRO ── -->
+<section id="intro">
+  <div class="container">
+    <div class="section-label">01 — Vue d'ensemble</div>
+    <h2>Introduction au CQB</h2>
+    <p>Cette formation a pour but de permettre au militaire terrestre de savoir entrer et sortir d'un bâtiment où des individus seraient retranchés suite à une attaque sur notre île.</p>
+
+    <div class="card-grid cols-3" style="margin:2rem 0">
+      <div class="stat-card">
+        <div class="stat-num">2</div>
+        <div class="stat-label">Groupes d'assaut minimum</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">2</div>
+        <div class="stat-label">Phases d'intervention</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1×</div>
+        <div class="stat-label">Entraînement / semaine</div>
+      </div>
+    </div>
+
+    <div class="alert alert-amber">
+      <div class="alert-icon">⚡</div>
+      <div>
+        <div class="alert-title">Règles de sécurité</div>
+        Il est nécessaire de connaître les règles de sécurité afin d'éviter des tirs alliés. Vous devez également connaître vos règles d'engagement sur un individu dans un espace restreint comme ouvert.
+      </div>
+    </div>
+
+    <h3 style="margin-top:2rem; margin-bottom:1rem">Paramètres à évaluer avant d'intervenir</h3>
+    <div class="accordion">
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <span>🔍 Évaluation des échappatoires</span>
+          <span class="acc-chevron">›</span>
+        </button>
+        <div class="acc-body">
+          Identifier toutes les issues potentielles que l'on ne pourrait pas voir, afin de s'assurer qu'aucun suspect ne puisse s'échapper sans être intercepté.
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <span>👁️ Visuel sur notre arrivée</span>
+          <span class="acc-chevron">›</span>
+        </button>
+        <div class="acc-body">
+          Vérifier si les individus peuvent avoir un visuel sur notre arrivée sur la zone. Si oui, adapter l'approche pour rester hors de leur champ de vision.
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <span>🚗 Moyens de fuite rapide</span>
+          <span class="acc-chevron">›</span>
+        </button>
+        <div class="acc-body">
+          Déterminer si les suspects ont un moyen de fuite rapide (véhicule, sortie secondaire, etc.) afin d'anticiper et de neutraliser cette possibilité.
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <span>✈️ Soutien aérien et FAEM</span>
+          <span class="acc-chevron">›</span>
+        </button>
+        <div class="acc-body">
+          Sur chacune des interventions en bâtiment, il est primordial de demander le soutien à l'armée de l'air et d'avoir un FAEM en appui, qui guidera sur les déplacements des suspects.
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-green" style="margin-top:1.5rem">
+      <div class="alert-icon">ℹ️</div>
+      <div>
+        <div class="alert-title">Groupes d'assaut</div>
+        Lors d'une intervention en bâtiment, il y aura toujours <strong>deux groupes d'assaut</strong> : <strong>Alpha</strong> et <strong>Bravo</strong> (et éventuellement <strong>Charlie</strong> si nécessaire).
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ENCERCLEMENT ── -->
+<section id="encerclement">
+  <div class="container">
+    <div class="section-label">02 — Approche</div>
+    <h2>Encerclement d'un bâtiment</h2>
+    <p>Voici la procédure pour encercler un bâtiment fermé sans être vus par les individus lorsqu'il n'y a qu'une seule sortie.</p>
+
+    <div class="diagram-wrap">
+      <h3 style="margin-bottom:1rem;text-align:left">Schéma d'approche tactique — Hangar</h3>
+      <svg id="approach-svg" width="700" height="400" viewBox="0 0 700 400">
+        <!-- Ground -->
+        <rect width="700" height="400" fill="#0d0f0e"/>
+        <!-- Road -->
+        <rect x="0" y="170" width="700" height="60" fill="#1a1a1a" rx="0"/>
+        <line x1="0" y1="200" x2="700" y2="200" stroke="#333" stroke-width="1" stroke-dasharray="20,10"/>
+        <text class="anim-label" x="340" y="204" text-anchor="middle" fill="#555">ROUTE PRINCIPALE</text>
+
+        <!-- Building / Hangar -->
+        <rect x="420" y="80" width="220" height="180" class="building-fill" rx="4"/>
+        <text class="anim-label" x="530" y="170" text-anchor="middle" fill="#6fcf4a" font-size="13" font-weight="bold">HANGAR</text>
+        <text class="anim-label" x="530" y="185" text-anchor="middle" fill="#8a9970">Bâtiment cible</text>
+
+        <!-- Door (only exit) -->
+        <rect x="487" y="258" width="46" height="4" fill="#6fcf4a"/>
+        <text class="anim-label" x="510" y="278" text-anchor="middle" fill="#6fcf4a">Sortie unique</text>
+
+        <!-- Danger window -->
+        <rect x="420" y="130" width="12" height="22" class="window-rect" rx="1"/>
+        <text class="anim-label" x="402" y="125" text-anchor="end" fill="#d93025">⚠ Fenêtre</text>
+        <text class="anim-label" x="402" y="138" text-anchor="end" fill="#d93025">danger</text>
+
+        <!-- Alpha route -->
+        <path id="route-a" d="M 60,200 L 60,80 L 420,80" class="route-path route-alpha" stroke-dasharray="8,4"/>
+        <!-- Bravo route -->
+        <path id="route-b" d="M 60,200 L 60,310 L 420,310 L 420,262" class="route-path route-bravo" stroke-dasharray="8,4"/>
+
+        <!-- Alpha soldiers (animated) -->
+        <g id="alpha-group">
+          <circle id="a1" cx="60" cy="200" r="10" class="soldier-alpha" opacity="0.9"/>
+          <text x="60" y="204" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">A</text>
+          <circle id="a2" cx="40" cy="200" r="10" class="soldier-alpha" opacity="0.9"/>
+          <text x="40" y="204" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">A</text>
+        </g>
+
+        <!-- Bravo soldiers -->
+        <g id="bravo-group">
+          <circle id="b1" cx="80" cy="200" r="10" class="soldier-bravo" opacity="0.9"/>
+          <text x="80" y="204" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">B</text>
+          <circle id="b2" cx="100" cy="200" r="10" class="soldier-bravo" opacity="0.9"/>
+          <text x="100" y="204" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">B</text>
+        </g>
+
+        <!-- Labels -->
+        <rect x="10" y="10" width="16" height="16" rx="3" class="soldier-alpha"/>
+        <text class="anim-label" x="32" y="22" fill="#4caf50">Groupe Alpha</text>
+        <rect x="10" y="32" width="16" height="16" rx="3" class="soldier-bravo"/>
+        <text class="anim-label" x="32" y="44" fill="#2196F3">Groupe Bravo</text>
+        <rect x="10" y="54" width="16" height="16" rx="3" fill="#d93025"/>
+        <text class="anim-label" x="32" y="66" fill="#d93025">Zone à risque (fenêtre)</text>
+
+        <!-- Position labels -->
+        <text class="anim-label" x="422" y="70" fill="#4caf50">← Alpha : Côté nord</text>
+        <text class="anim-label" x="422" y="320" fill="#2196F3">← Bravo : Côté sud</text>
+      </svg>
+      <button id="anim-btn" onclick="runApproachAnim()">▶ Animer l'approche</button>
+      <p style="font-size:.8rem;color:var(--text2);margin-top:.7rem">Cliquez pour voir Alpha prendre le côté nord et Bravo le côté sud</p>
+    </div>
+
+    <div class="slide-pair" style="margin-top:2rem">
+      <div>
+        <h3>Règle d'approche fondamentale</h3>
+        <p>Dès le début, il est primordial de <strong>sortir de la route principale</strong> pour éviter tout soupçon des suspects et passer directement derrière le bâtiment.</p>
+        <div class="alert alert-red">
+          <div class="alert-icon">⚠️</div>
+          <div>
+            <div class="alert-title">Attention — Groupe Alpha</div>
+            Pour le groupe Alpha sur le hangar : une fenêtre permet aux suspects de vous voir arriver. Cela risque de compromettre toute l'opération. Passez hors du champ de vue avant de vous positionner.
+          </div>
+        </div>
+      </div>
+      <div>
+        <img src="assets/slide3_img1.png" alt="Encerclement du bâtiment" onclick="openLightbox(this.src)" style="width:100%;border-radius:6px;border:1px solid var(--border);cursor:pointer">
+        <img src="assets/slide4_img2.png" alt="Zone à risque fenêtre" onclick="openLightbox(this.src)" style="width:100%;border-radius:6px;border:1px solid var(--border);cursor:pointer;margin-top:.7rem">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ENTRÉE ── -->
+<section id="entree">
+  <div class="container">
+    <div class="section-label">03 — Assaut</div>
+    <h2>Procédure d'entrée Alpha / Bravo</h2>
+    <p>Une fois la zone à risque dépassée pour Alpha, les deux colonnes se placent à gauche et à droite du point d'entrée.</p>
+
+    <div class="diagram-wrap">
+      <h3 style="margin-bottom:1rem;text-align:left">Schéma d'entrée — Vue de dessus</h3>
+      <svg width="600" height="320" viewBox="0 0 600 320">
+        <rect width="600" height="320" fill="#0d0f0e"/>
+
+        <!-- Building -->
+        <rect x="200" y="60" width="200" height="200" fill="#1e2518" stroke="#4caf50" stroke-width="2" rx="4"/>
+        <text x="300" y="165" text-anchor="middle" fill="#6fcf4a" font-size="14" font-weight="bold">PIÈCE</text>
+
+        <!-- Door opening -->
+        <rect x="270" y="258" width="60" height="6" fill="#0d0f0e"/>
+        <rect x="265" y="255" width="5" height="15" fill="#4caf50"/>
+        <rect x="330" y="255" width="5" height="15" fill="#4caf50"/>
+        <text x="300" y="285" text-anchor="middle" fill="#6fcf4a" font-size="11">ENTRÉE</text>
+
+        <!-- Alpha column LEFT -->
+        <circle cx="240" cy="340" r="11" class="soldier-alpha" id="ea1"/>
+        <text x="240" y="344" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">A1</text>
+        <circle cx="220" cy="340" r="11" class="soldier-alpha"/>
+        <text x="220" y="344" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">A2</text>
+        <text x="205" y="310" fill="#4caf50" font-size="10" text-anchor="middle">ALPHA</text>
+        <text x="205" y="322" fill="#4caf50" font-size="10" text-anchor="middle">Colonne G.</text>
+
+        <!-- Bravo column RIGHT -->
+        <circle cx="360" cy="340" r="11" class="soldier-bravo" id="eb1"/>
+        <text x="360" y="344" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">B1</text>
+        <circle cx="380" cy="340" r="11" class="soldier-bravo"/>
+        <text x="380" y="344" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">B2</text>
+        <text x="395" y="310" fill="#2196F3" font-size="10" text-anchor="middle">BRAVO</text>
+        <text x="395" y="322" fill="#2196F3" font-size="10" text-anchor="middle">Colonne D.</text>
+
+        <!-- Arrows showing coverage -->
+        <path d="M 295 255 L 220 180" stroke="#4caf50" stroke-width="1.5" fill="none" marker-end="url(#arr-g)"/>
+        <path d="M 305 255 L 380 180" stroke="#2196F3" stroke-width="1.5" fill="none" marker-end="url(#arr-b)"/>
+
+        <defs>
+          <marker id="arr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+          </marker>
+          <marker id="arr-b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#2196F3"/>
+          </marker>
+        </defs>
+
+        <!-- Labels -->
+        <text x="215" y="155" fill="#4caf50" font-size="10">A1 couvre</text>
+        <text x="215" y="167" fill="#4caf50" font-size="10">côté gauche</text>
+        <text x="350" y="155" fill="#2196F3" font-size="10">B1 couvre</text>
+        <text x="350" y="167" fill="#2196F3" font-size="10">côté droit</text>
+
+        <!-- Rule box -->
+        <rect x="10" y="10" width="180" height="55" fill="#2a1010" stroke="#d93025" stroke-width="1" rx="4"/>
+        <text x="20" y="27" fill="#d93025" font-size="9" font-weight="bold">⚠ RÈGLE DE SÉCURITÉ</text>
+        <text x="20" y="41" fill="#c8d4b0" font-size="9">Ne pas entrer tous en</text>
+        <text x="20" y="53" fill="#c8d4b0" font-size="9">même temps !</text>
+      </svg>
+    </div>
+
+    <div class="alert alert-red">
+      <div class="alert-icon">🚨</div>
+      <div>
+        <div class="alert-title">Règle de sécurité absolue</div>
+        Il est <strong>primordial</strong> de ne pas tous rentrer en même temps. Le premier membre d'Alpha entre et sécurise le côté gauche, pendant que le premier membre de Bravo entre et sécurise le côté droit d'Alpha.
+      </div>
+    </div>
+
+    <div class="steps" style="margin-top:2rem">
+      <div class="step">
+        <div class="step-line">
+          <div class="step-dot">1</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <h3>Mise en place des deux colonnes</h3>
+          <p>Alpha se positionne sur la gauche du point d'entrée, Bravo sur la droite. Les colonnes doivent être prêtes et en position avant de procéder à l'entrée.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line">
+          <div class="step-dot">2</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <h3>Entrée alternée A1 / B1</h3>
+          <p>A1 pénètre en premier et sécurise immédiatement le côté gauche. B1 entre juste après et sécurise le côté droit. Chacun couvre l'angle opposé de son partenaire.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line">
+          <div class="step-dot">3</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <h3>Progression et clearing</h3>
+          <p>Les membres suivants entrent à leur tour, chaque binôme couvrant les angles restants. La pièce est déclarée sécurisée uniquement lorsque tous les angles sont couverts.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line">
+          <div class="step-dot">4</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <h3>Réorganisation pour la pièce suivante</h3>
+          <p>Une fois la pièce sécurisée, le groupe se réorganise et prépare un nouveau plan pour la prochaine pièce ou le couloir suivant.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem">
+      <img src="assets/slide5_img3.png" alt="Positionnement colonnes Alpha Bravo" onclick="openLightbox(this.src)" style="width:100%;max-width:600px;border-radius:6px;border:1px solid var(--border);cursor:pointer;display:block;margin:0 auto">
+    </div>
+  </div>
+</section>
+
+<!-- ── ESCALIERS ── -->
+<section id="escaliers">
+  <div class="container">
+    <div class="section-label">04 — Configurations difficiles</div>
+    <h2>Bâtiments avec escaliers — Règles particulières</h2>
+    <p>Certaines configurations de bâtiment sont différentes, mais les règles d'engagement restent les mêmes. Seule la méthode d'entrée change.</p>
+
+    <div class="alert alert-red" style="margin-bottom:2rem">
+      <div class="alert-icon">💀</div>
+      <div>
+        <div class="alert-title">Danger critique — Escaliers étroits</div>
+        Un escalier trop petit pour une colonne d'assaut ne peut pas être pénétré. Vous ne pouvez pas avoir de visuel sur ce qui se passe en bas. Les suspects auront l'information bien avant vous et peuvent soit vous abattre, soit vous prendre en otage.
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-danger')">⚠ Situation dangereuse</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-piege')">🪤 Créer un piège</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-regles')">📋 Règles générales</button>
+    </div>
+
+    <div id="tab-danger" class="tab-content active">
+      <div class="slide-pair">
+        <div>
+          <h3>L'escalier — Une zone de mort</h3>
+          <p>Lorsque l'escalier est trop petit pour une colonne d'assaut, <strong>ne jouez pas au héros</strong>. Vous n'êtes pas des machines.</p>
+          <p>Dans cette configuration, les suspects ont l'avantage total :</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0">
+            <li style="display:flex;gap:.5rem;align-items:flex-start"><span style="color:var(--red)">✕</span> Ils vous voient arriver avant vous</li>
+            <li style="display:flex;gap:.5rem;align-items:flex-start"><span style="color:var(--red)">✕</span> Ils peuvent vous abattre depuis le bas</li>
+            <li style="display:flex;gap:.5rem;align-items:flex-start"><span style="color:var(--red)">✕</span> Ils peuvent vous prendre en otage</li>
+            <li style="display:flex;gap:.5rem;align-items:flex-start"><span style="color:var(--red)">✕</span> Cela met en danger vos frères d'armes</li>
+          </ul>
+
+          <!-- Staircase danger diagram -->
+          <div class="diagram-wrap" style="margin-top:1rem">
+            <svg width="300" height="200" viewBox="0 0 300 200">
+              <rect width="300" height="200" fill="#0d0f0e"/>
+              <!-- Staircase -->
+              <rect x="120" y="20" width="60" height="160" fill="#1e2518" stroke="#4caf50" stroke-width="1.5" rx="2"/>
+              <text x="150" y="105" text-anchor="middle" fill="#4caf50" font-size="9">ESCALIER</text>
+              <text x="150" y="118" text-anchor="middle" fill="#4caf50" font-size="9">ÉTROIT</text>
+              <!-- Steps -->
+              <line x1="120" y1="50" x2="180" y2="50" stroke="#2e3d20" stroke-width="1"/>
+              <line x1="120" y1="80" x2="180" y2="80" stroke="#2e3d20" stroke-width="1"/>
+              <line x1="120" y1="110" x2="180" y2="110" stroke="#2e3d20" stroke-width="1"/>
+              <line x1="120" y1="140" x2="180" y2="140" stroke="#2e3d20" stroke-width="1"/>
+              <!-- Suspect at bottom -->
+              <circle cx="150" cy="168" r="10" fill="#d93025"/>
+              <text x="150" y="172" text-anchor="middle" fill="#fff" font-size="8">S</text>
+              <text x="150" y="190" text-anchor="middle" fill="#d93025" font-size="9">Suspect</text>
+              <!-- Soldier at top -->
+              <circle cx="150" cy="30" r="10" class="soldier-alpha"/>
+              <text x="150" y="34" text-anchor="middle" fill="#000" font-size="8">A</text>
+              <!-- Danger lines -->
+              <path d="M150 155 L150 42" stroke="#d93025" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-danger)"/>
+              <defs>
+                <marker id="arr-danger" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L9,3 z" fill="#d93025"/>
+                </marker>
+              </defs>
+              <text x="185" y="100" fill="#d93025" font-size="9">Tir</text>
+              <text x="185" y="112" fill="#d93025" font-size="9">plongeant</text>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <img src="assets/slide7_img4.png" alt="Escalier dangereux" onclick="openLightbox(this.src)" style="width:100%;border-radius:6px;border:1px solid var(--border);cursor:pointer">
+          <img src="assets/slide8_img5.png" alt="Avantage suspect escalier" onclick="openLightbox(this.src)" style="width:100%;border-radius:6px;border:1px solid var(--border);cursor:pointer;margin-top:.7rem">
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-piege" class="tab-content">
+      <div class="slide-pair">
+        <div>
+          <h3>La solution : Créer un piège à l'extérieur</h3>
+          <p>Dans cette configuration, le mieux est de créer un piège à l'<strong>extérieur</strong> du bâtiment, toujours en deux colonnes d'assaut Alpha et Bravo.</p>
+          <div class="alert alert-green">
+            <div class="alert-icon">✅</div>
+            <div>
+              <div class="alert-title">Principe clé</div>
+              Vous êtes entraînés à être plus <strong>patients que les suspects</strong>. Laissez-les venir à vous plutôt que de vous mettre en danger dans l'escalier.
+            </div>
+          </div>
+          <div class="diagram-wrap" style="margin-top:1rem">
+            <svg width="360" height="220" viewBox="0 0 360 220">
+              <rect width="360" height="220" fill="#0d0f0e"/>
+              <!-- Building -->
+              <rect x="130" y="30" width="100" height="130" fill="#1e2518" stroke="#4caf50" stroke-width="1.5" rx="2"/>
+              <text x="180" y="100" text-anchor="middle" fill="#6fcf4a" font-size="10">Bâtiment</text>
+              <!-- Suspect inside -->
+              <circle cx="180" cy="120" r="9" fill="#d93025"/>
+              <text x="180" y="124" text-anchor="middle" fill="#fff" font-size="8">S</text>
+              <!-- Exit door -->
+              <rect x="155" y="158" width="50" height="4" fill="#6fcf4a"/>
+              <text x="180" y="175" text-anchor="middle" fill="#6fcf4a" font-size="9">Sortie</text>
+              <!-- Alpha trap left -->
+              <circle cx="80" cy="175" r="10" class="soldier-alpha"/>
+              <text x="80" y="179" text-anchor="middle" fill="#000" font-size="8">A1</text>
+              <circle cx="60" cy="185" r="10" class="soldier-alpha"/>
+              <text x="60" y="189" text-anchor="middle" fill="#000" font-size="8">A2</text>
+              <!-- Bravo trap right -->
+              <circle cx="280" cy="175" r="10" class="soldier-bravo"/>
+              <text x="280" y="179" text-anchor="middle" fill="#fff" font-size="8">B1</text>
+              <circle cx="300" cy="185" r="10" class="soldier-bravo"/>
+              <text x="300" y="189" text-anchor="middle" fill="#fff" font-size="8">B2</text>
+              <!-- Coverage arcs -->
+              <path d="M 90 172 Q 180 200 270 172" stroke="#6fcf4a" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+              <text x="180" y="210" text-anchor="middle" fill="#6fcf4a" font-size="9">Zone de contrôle — Piège extérieur</text>
+              <text x="50" y="165" fill="#4caf50" font-size="9">ALPHA</text>
+              <text x="285" y="165" fill="#2196F3" font-size="9">BRAVO</text>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <img src="assets/slide9_img6.png" alt="Piège extérieur bâtiment" onclick="openLightbox(this.src)" style="width:100%;border-radius:6px;border:1px solid var(--border);cursor:pointer">
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-regles" class="tab-content">
+      <h3 style="margin-bottom:1rem">Règles générales — Configurations de bâtiment</h3>
+      <div class="card-grid cols-2">
+        <div class="card">
+          <h3 style="color:var(--green2);margin-bottom:.5rem">✅ Bâtiment accessible</h3>
+          <p style="font-size:.9rem">Entrée possible, issues controlables. Appliquer la procédure standard Alpha / Bravo avec entrée alternée.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--amber);margin-bottom:.5rem">⚠ Bâtiment avec escaliers</h3>
+          <p style="font-size:.9rem">Évaluer la taille de l'escalier. S'il est trop étroit pour une colonne d'assaut, NE PAS intervenir à l'intérieur.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--red);margin-bottom:.5rem">✕ Bâtiment sans issue</h3>
+          <p style="font-size:.9rem">Certains bâtiments ne nécessitent pas d'intervention car il n'y a pas d'issue pour les suspects. Encercler uniquement — intervenir serait trop dangereux.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--green2);margin-bottom:.5rem">🪤 Stratégie d'attente</h3>
+          <p style="font-size:.9rem">Toujours préférer créer un piège à l'extérieur plutôt que de se mettre en danger dans une zone à désavantage tactique.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PHASES ── -->
+<section id="phases">
+  <div class="container">
+    <div class="section-label">05 — Méthodologie</div>
+    <h2>Les 2 phases du CQB</h2>
+    <p>Le CQB se découpe en <strong>2 phases bien distinctes</strong> : la phase de préparation et la phase d'action. Le respect de ces deux phases est primordial pour la réussite de l'opération.</p>
+
+    <div class="card-grid cols-2" style="margin:2rem 0">
+      <div class="card" style="border-color: var(--green)">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1rem">
+          <div style="background:var(--green);color:#000;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0">1</div>
+          <h3 style="margin:0">Phase de Préparation</h3>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.6rem;font-size:.9rem">
+          <li style="display:flex;gap:.5rem"><span style="color:var(--green)">→</span> Prendre connaissance de l'obstacle (pièce, couloir, hall)</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--green)">→</span> Mettre en place un plan pour rentrer et clearer la pièce</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--green)">→</span> Attribuer un rôle à chacun des agents</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color: var(--amber)">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1rem">
+          <div style="background:var(--amber);color:#000;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0">2</div>
+          <h3 style="margin:0">Phase d'Action</h3>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.6rem;font-size:.9rem">
+          <li style="display:flex;gap:.5rem"><span style="color:var(--amber)">→</span> Exécuter le plan à la lettre</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--amber)">→</span> Neutraliser les menaces</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--amber)">→</span> Prendre possession de la pièce</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--amber)">→</span> Couvrir tous les angles possibles</li>
+          <li style="display:flex;gap:.5rem"><span style="color:var(--amber)">→</span> Préparer le plan pour la pièce suivante</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Interactive room progression -->
+    <div class="diagram-wrap">
+      <h3 style="margin-bottom:.5rem;text-align:left">Progression logique — Clearing multi-pièces</h3>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem">Toute pièce qui n'est plus sous le contrôle des forces alliées doit être considérée comme récupérée par l'ennemi.</p>
+      <svg width="640" height="140" viewBox="0 0 640 140">
+        <rect width="640" height="140" fill="#0d0f0e"/>
+        <!-- Rooms -->
+        <g id="room1">
+          <rect x="10" y="30" width="100" height="80" fill="#0f2212" stroke="#4caf50" stroke-width="2" rx="4"/>
+          <text x="60" y="72" text-anchor="middle" fill="#4caf50" font-size="11" font-weight="bold">Pièce 1</text>
+          <text x="60" y="85" text-anchor="middle" fill="#6fcf4a" font-size="9">✓ SÉCURISÉE</text>
+        </g>
+        <!-- Arrow -->
+        <path d="M 112 70 L 138 70" stroke="#4caf50" stroke-width="2" marker-end="url(#arr-room)"/>
+        <g id="room2">
+          <rect x="140" y="30" width="100" height="80" fill="#1a2012" stroke="#f5a623" stroke-width="2" rx="4" stroke-dasharray="5,3"/>
+          <text x="190" y="72" text-anchor="middle" fill="#f5a623" font-size="11" font-weight="bold">Pièce 2</text>
+          <text x="190" y="85" text-anchor="middle" fill="#f5a623" font-size="9">EN COURS</text>
+        </g>
+        <!-- Arrow -->
+        <path d="M 242 70 L 268 70" stroke="#555" stroke-width="2" marker-end="url(#arr-room2)"/>
+        <g id="room3">
+          <rect x="270" y="30" width="100" height="80" fill="#1e2518" stroke="#444" stroke-width="2" rx="4"/>
+          <text x="320" y="72" text-anchor="middle" fill="#666" font-size="11" font-weight="bold">Pièce 3</text>
+          <text x="320" y="85" text-anchor="middle" fill="#666" font-size="9">EN ATTENTE</text>
+        </g>
+        <!-- Arrow -->
+        <path d="M 372 70 L 398 70" stroke="#555" stroke-width="2" marker-end="url(#arr-room3)"/>
+        <g id="room4">
+          <rect x="400" y="30" width="100" height="80" fill="#1e2518" stroke="#444" stroke-width="2" rx="4"/>
+          <text x="450" y="72" text-anchor="middle" fill="#666" font-size="11" font-weight="bold">Pièce 4</text>
+          <text x="450" y="85" text-anchor="middle" fill="#666" font-size="9">EN ATTENTE</text>
+        </g>
+        <!-- Arrow -->
+        <path d="M 502 70 L 528 70" stroke="#555" stroke-width="2" marker-end="url(#arr-room4)"/>
+        <g>
+          <rect x="530" y="30" width="100" height="80" fill="#1e2518" stroke="#444" stroke-width="2" rx="4"/>
+          <text x="580" y="68" text-anchor="middle" fill="#666" font-size="11" font-weight="bold">Zone</text>
+          <text x="580" y="81" text-anchor="middle" fill="#666" font-size="11" font-weight="bold">Sécurisée</text>
+          <text x="580" y="97" text-anchor="middle" fill="#666" font-size="9">OBJECTIF</text>
+        </g>
+
+        <defs>
+          <marker id="arr-room" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+          </marker>
+          <marker id="arr-room2" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#555"/>
+          </marker>
+          <marker id="arr-room3" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#555"/>
+          </marker>
+          <marker id="arr-room4" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#555"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="alert alert-amber">
+      <div class="alert-icon">📌</div>
+      <div>
+        <div class="alert-title">Fil logique de progression</div>
+        Il est important de garder un fil logique dans votre progression. Toute pièce qui n'est plus sous le contrôle des forces alliées doit être considérée comme récupérée par l'ennemi.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TIMELINE ── -->
+<section id="timeline">
+  <div class="container">
+    <div class="section-label">07 — Chronologie</div>
+    <h2>Timeline d'une opération complète</h2>
+    <p>Cliquez sur chaque étape pour voir le détail. Suivez le fil de A à Z d'une intervention CQB réussie.</p>
+    <div style="margin-top:2rem" class="timeline" id="tl-root">
+      <div class="tl-item active" onclick="tlClick(this,0)">
+        <div class="tl-dot">1</div>
+        <div class="tl-card">
+          <h3>📋 Briefing & Renseignement</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Avant toute chose — analyse de la situation</p>
+          <div class="tl-detail">Réunion des groupes Alpha, Bravo (et Charlie si nécessaire). Partage des renseignements disponibles : plan du bâtiment, nombre de suspects estimé, armement connu. Désignation du chef d'opération et attribution des rôles. Contact avec le FAEM et l'armée de l'air confirmé.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,1)">
+        <div class="tl-dot">2</div>
+        <div class="tl-card">
+          <h3>🔍 Évaluation de la zone</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Analyse des paramètres avant d'approcher</p>
+          <div class="tl-detail">Identification des échappatoires possibles. Vérification si les suspects ont un visuel sur notre position. Évaluation des moyens de fuite rapide (véhicules, sorties secondaires). Analyse de la structure du bâtiment : escaliers, fenêtres, angles morts.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,2)">
+        <div class="tl-dot">3</div>
+        <div class="tl-card">
+          <h3>🚶 Approche discrète</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Sortir de la route principale immédiatement</p>
+          <div class="tl-detail">Les deux colonnes quittent la route principale dès que possible pour éviter d'être vues. Alpha prend le côté nord (ou gauche) du bâtiment, Bravo le côté sud (ou droit). Attention aux fenêtres offrant un visuel aux suspects — passer hors du champ avant de se positionner.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,3)">
+        <div class="tl-dot">4</div>
+        <div class="tl-card">
+          <h3>🔄 Encerclement</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Couper toutes les issues de fuite</p>
+          <div class="tl-detail">Alpha et Bravo se positionnent de part et d'autre de la sortie principale. Si un bâtiment possède des escaliers trop étroits ou pas d'issue de fuite, l'encerclement seul suffit — ne pas intervenir à l'intérieur dans ce cas. Signal du FAEM pour confirmer la position des suspects.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,4)">
+        <div class="tl-dot">5</div>
+        <div class="tl-card">
+          <h3>🎯 Phase préparation — Plan d'entrée</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Planifier avant d'agir</p>
+          <div class="tl-detail">Chaque agent se voit attribuer un rôle précis. Le plan d'entrée est communiqué : qui entre en premier, qui couvre quel angle, quelle pièce est prioritaire. Les colonnes se mettent en position à gauche et à droite du point d'entrée.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,5)">
+        <div class="tl-dot">6</div>
+        <div class="tl-card">
+          <h3>💥 Phase action — Assaut</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Exécution du plan à la lettre</p>
+          <div class="tl-detail">A1 entre et sécurise le côté gauche. B1 entre et sécurise le côté droit. Les membres suivants entrent alternativement en couvrant les angles restants. Chaque pièce est clearée avant de passer à la suivante. Toute pièce non tenue = potentiellement récupérée par l'ennemi.</div>
+        </div>
+      </div>
+      <div class="tl-item" onclick="tlClick(this,6)">
+        <div class="tl-dot">7</div>
+        <div class="tl-card">
+          <h3>✅ Sécurisation & Extraction</h3>
+          <p style="font-size:.82rem;color:var(--text2)">Zone déclarée sécurisée</p>
+          <div class="tl-detail">Toutes les pièces sont sous contrôle allié. Les suspects sont neutralisés ou capturés. Compte rendu au commandement. Extraction des blessés si nécessaire. Débriefing post-opération pour identifier les points d'amélioration.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GALERIE ── -->
+<section id="galerie">
+  <div class="container">
+    <div class="section-label">07 — Illustrations</div>
+    <h2>Illustrations CQB</h2>
+    <p>Ces illustrations représentent plusieurs situations de CQB. L'instructeur est prié de les communiquer aux agents pour faciliter leur compréhension.</p>
+    <div class="img-grid">
+      <img src="assets/slide11_img7.jpg" alt="Situation CQB 1" onclick="openLightbox(this.src)">
+      <img src="assets/slide11_img8.jpg" alt="Situation CQB 2" onclick="openLightbox(this.src)">
+      <img src="assets/slide11_img9.jpg" alt="Situation CQB 3" onclick="openLightbox(this.src)">
+      <img src="assets/slide11_img10.jpg" alt="Situation CQB 4" onclick="openLightbox(this.src)">
+      <img src="assets/slide11_img11.jpg" alt="Situation CQB 5" onclick="openLightbox(this.src)">
+      <img src="assets/slide11_img12.jpg" alt="Situation CQB 6" onclick="openLightbox(this.src)">
+    </div>
+  </div>
+</section>
+
+<!-- ── CARTE TACTIQUE ── -->
+<section id="carte">
+  <div class="container">
+    <div class="section-label">08 — Simulation</div>
+    <h2>Carte tactique interactive</h2>
+    <p>Cliquez sur chaque pièce pour la déclarer sécurisée. Respectez un ordre logique de progression — une pièce non tenue peut être récupérée par l'ennemi.</p>
+    <div class="diagram-wrap" style="position:relative">
+      <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+        <span style="font-size:.82rem;color:var(--text2)">État : </span>
+        <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem"><span style="width:12px;height:12px;border-radius:2px;background:#1e2518;border:1px solid #444;display:inline-block"></span>En attente</span>
+        <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem"><span style="width:12px;height:12px;border-radius:2px;background:#1a2e08;border:1px solid var(--amber);display:inline-block"></span>En cours</span>
+        <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem"><span style="width:12px;height:12px;border-radius:2px;background:#0f2212;border:1px solid var(--green);display:inline-block"></span>Sécurisée</span>
+        <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem"><span style="width:12px;height:12px;border-radius:2px;background:#2a1010;border:1px solid var(--red);display:inline-block"></span>Danger</span>
+      </div>
+      <svg id="tac-map" width="660" height="380" viewBox="0 0 660 380" style="max-width:100%">
+        <rect width="660" height="380" fill="#0a0c09"/>
+        <!-- Walls outer -->
+        <rect x="40" y="30" width="580" height="320" fill="none" stroke="#2e3d20" stroke-width="3" rx="4"/>
+
+        <!-- Room: Entrée (hall) -->
+        <g class="tac-room" id="rm-entree" onclick="tacClick('entree')">
+          <rect x="40" y="250" width="160" height="100" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-entree-bg"/>
+          <text x="120" y="297" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-entree-label">ENTRÉE</text>
+          <text x="120" y="312" text-anchor="middle" fill="#555" font-size="9" id="rm-entree-state">En attente</text>
+        </g>
+        <!-- Door entry -->
+        <rect x="110" y="348" width="50" height="5" fill="#4caf50" rx="1"/>
+        <text x="135" y="368" text-anchor="middle" fill="#4caf50" font-size="9">ENTRÉE</text>
+
+        <!-- Room: Couloir central -->
+        <g class="tac-room" id="rm-couloir" onclick="tacClick('couloir')">
+          <rect x="200" y="200" width="260" height="50" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-couloir-bg"/>
+          <text x="330" y="222" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-couloir-label">COULOIR CENTRAL</text>
+          <text x="330" y="238" text-anchor="middle" fill="#555" font-size="9" id="rm-couloir-state">En attente</text>
+        </g>
+
+        <!-- Room: Salle 1 (gauche) -->
+        <g class="tac-room" id="rm-s1" onclick="tacClick('s1')">
+          <rect x="200" y="30" width="130" height="170" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-s1-bg"/>
+          <text x="265" y="112" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-s1-label">SALLE 1</text>
+          <text x="265" y="127" text-anchor="middle" fill="#555" font-size="9" id="rm-s1-state">En attente</text>
+        </g>
+
+        <!-- Room: Salle 2 (droite haut) -->
+        <g class="tac-room" id="rm-s2" onclick="tacClick('s2')">
+          <rect x="330" y="30" width="130" height="170" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-s2-bg"/>
+          <text x="395" y="112" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-s2-label">SALLE 2</text>
+          <text x="395" y="127" text-anchor="middle" fill="#555" font-size="9" id="rm-s2-state">En attente</text>
+        </g>
+
+        <!-- Room: Bureau (fond droit) -->
+        <g class="tac-room" id="rm-bureau" onclick="tacClick('bureau')">
+          <rect x="460" y="30" width="160" height="320" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-bureau-bg"/>
+          <text x="540" y="182" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-bureau-label">BUREAU</text>
+          <text x="540" y="197" text-anchor="middle" fill="#555" font-size="9" id="rm-bureau-state">En attente</text>
+        </g>
+
+        <!-- Room: Escalier -->
+        <g class="tac-room" id="rm-esc" onclick="tacClick('esc')">
+          <rect x="200" y="250" width="120" height="100" fill="#1e2518" stroke="#d93025" stroke-width="1.5" rx="2" stroke-dasharray="4,2" id="rm-esc-bg"/>
+          <text x="260" y="297" text-anchor="middle" fill="#d93025" font-size="10" font-weight="bold" id="rm-esc-label">ESCALIER</text>
+          <text x="260" y="310" text-anchor="middle" fill="#d93025" font-size="8" id="rm-esc-state">⚠ Zone à risque</text>
+        </g>
+
+        <!-- Room: Fond gauche -->
+        <g class="tac-room" id="rm-fond" onclick="tacClick('fond')">
+          <rect x="320" y="250" width="140" height="100" fill="#1e2518" stroke="#444" stroke-width="1.5" rx="2" id="rm-fond-bg"/>
+          <text x="390" y="297" text-anchor="middle" fill="#666" font-size="11" font-weight="bold" id="rm-fond-label">SALLE FOND</text>
+          <text x="390" y="312" text-anchor="middle" fill="#555" font-size="9" id="rm-fond-state">En attente</text>
+        </g>
+
+        <!-- Suspect markers (hidden initially) -->
+        <circle id="susp1" cx="395" cy="80" r="8" fill="#d93025" opacity="0" id="susp1"/>
+        <text id="susp1t" x="395" y="84" text-anchor="middle" fill="#fff" font-size="8" opacity="0">S</text>
+        <circle id="susp2" cx="540" cy="150" r="8" fill="#d93025" opacity="0"/>
+        <text id="susp2t" x="540" y="154" text-anchor="middle" fill="#fff" font-size="8" opacity="0">S</text>
+
+        <!-- Legend -->
+        <text x="50" y="20" fill="#4caf50" font-size="9">★ Cliquez sur chaque pièce pour la clearer dans l'ordre</text>
+      </svg>
+      <div id="tac-msg" style="margin-top:.8rem;font-size:.88rem;color:var(--amber);min-height:1.4em"></div>
+      <div class="tac-btn-row">
+        <button class="tac-btn active" onclick="tacSetMode('clear')">🔫 Mode Clearing</button>
+        <button class="tac-btn" onclick="tacSetMode('danger')">⚠ Marquer Danger</button>
+        <button class="tac-btn" onclick="tacReset()">↺ Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUIZ ── -->
+<section id="quiz">
+  <div class="container">
+    <div class="section-label">09 — Entraînement</div>
+    <h2>Quiz — Testez vos connaissances CQB</h2>
+    <p>6 questions pour valider votre compréhension des procédures. Répondez correctement pour être opérationnel.</p>
+    <div style="margin-top:2rem">
+      <div class="quiz-progress" id="quiz-pips"></div>
+      <div class="quiz-box" id="quiz-container"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHECKLIST ── -->
+<section id="checklist">
+  <div class="container">
+    <div class="section-label">10 — Opérationnel</div>
+    <h2>Checklist pré-intervention</h2>
+    <p>Cochez chaque point avant de lancer une opération. Tout doit être validé avant de procéder à l'assaut.</p>
+    <div style="margin-top:1rem">
+      <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-fill" style="width:0%"></div></div>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.5rem" id="cl-count">0 / 12 points validés</p>
+    </div>
+
+    <div class="cl-group-label">📡 Renseignement & Coordination</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">FAEM en appui confirmé et en position</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Soutien de l'armée de l'air demandé et confirmé</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Renseignements sur les suspects partagés avec tous les groupes</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Plan du bâtiment ou schéma d'approche communiqué</div></div>
+    </div>
+
+    <div class="cl-group-label">🎯 Évaluation de la zone</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Échappatoires potentielles identifiées</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Fenêtres et angles de visibilité évalués</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Moyens de fuite des suspects neutralisés</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Escaliers évalués (accessibles ou zone à piège uniquement)</div></div>
+    </div>
+
+    <div class="cl-group-label">👥 Groupes d'assaut</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Groupes Alpha et Bravo formés et briefés</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Rôles attribués à chaque agent (A1, A2, B1, B2…)</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Colonnes positionnées à gauche et droite du point d'entrée</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Règle d'entrée alternée rappelée — ne pas entrer tous en même temps</div></div>
+    </div>
+
+    <button onclick="clReset()" style="margin-top:1.5rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:.6rem 1.2rem;border-radius:4px;cursor:pointer;font-size:.82rem;transition:all .2s" onmouseover="this.style.borderColor='var(--green2)'" onmouseout="this.style.borderColor='var(--border)'">↺ Réinitialiser la checklist</button>
+  </div>
+</section>
+
+<!-- ── GLOSSAIRE ── -->
+<section id="glossaire">
+  <div class="container">
+    <div class="section-label">11 — Référence</div>
+    <h2>Glossaire militaire CQB</h2>
+    <p>Définitions des termes utilisés dans cette formation. Survolez aussi les termes soulignés dans le texte pour voir leur définition.</p>
+    <div class="card-grid cols-2" style="margin-top:2rem">
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">CQB</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0"><em>Close Quarter Battle</em> — Techniques de combat rapproché en espace confiné (bâtiment, couloir, véhicule). Requiert une coordination et une réactivité maximales.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">FAEM</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Forces Aériennes d'Exploitation et de Manœuvre — unité en appui aérien qui observe les déplacements des suspects et guide les colonnes d'assaut au sol.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Clearing</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Action de sécuriser méthodiquement une pièce ou une zone en éliminant toute menace et en couvrant tous les angles. Une pièce "clearée" est sous contrôle allié.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Colonne d'assaut</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Formation tactique où les agents progressent en file, permettant un mouvement rapide tout en maintenant une couverture mutuelle. Alpha = colonne gauche, Bravo = colonne droite.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Angle mort</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Zone non visible depuis une position donnée, potentiellement exploitée par l'ennemi. Lors d'une entrée, chaque membre doit couvrir les angles morts de son partenaire.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Tir allié (friendly fire)</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Tir accidentel sur un membre allié. Évité en respectant les règles d'engagement, en identifiant les cibles avant de tirer, et en ne croisant jamais les axes de tir des colonnes.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Règles d'engagement (ROE)</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Directives précisant dans quelles circonstances et de quelle manière la force peut être utilisée. Doivent être connues de tous les agents avant l'intervention.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Encerclement</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Manœuvre consistant à positionner des forces sur tous les côtés d'un bâtiment pour couper les voies de fuite des suspects, sans nécessairement pénétrer à l'intérieur.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Alpha / Bravo / Charlie</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Dénominations des groupes d'assaut (alphabet phonétique OTAN). Alpha = premier groupe, Bravo = second, Charlie = troisième si effectifs suffisants. Chaque groupe a un rôle distinct.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);font-size:1.1rem;margin-bottom:.3rem">Zone à risque</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin:0">Portion du trajet d'approche ou du bâtiment exposant les agents à un tir ennemi (fenêtre, escalier étroit, angle de tir plongeant). Doit être identifiée et contournée ou neutralisée.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>Formation CQB — Forces Armées de Cayo Perico · Document classifié — Usage interne uniquement</p>
+  <p style="margin-top:.4rem">Réalisé par 06 · <span id="year"></span></p>
+</footer>
+
+<!-- ── LIGHTBOX ── -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+  // ── DISCLAIMER ──
+  function dismissDisclaimer() {
+    document.getElementById('disclaimer-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // ── PROGRESS BAR ──
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  });
+
+  // ── ACCORDION ──
+  function toggleAcc(btn) {
+    const item = btn.closest('.acc-item');
+    item.classList.toggle('open');
+  }
+
+  // ── TABS ──
+  function switchTab(btn, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  // ── LIGHTBOX ──
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
+
+  // ── APPROACH ANIMATION ──
+  let animRunning = false;
+  function runApproachAnim() {
+    if (animRunning) return;
+    animRunning = true;
+    const btn = document.getElementById('anim-btn');
+    btn.textContent = '⏳ Animation...';
+    btn.disabled = true;
+
+    // Reset positions
+    const a1 = document.getElementById('a1');
+    const a2 = document.getElementById('a2');
+    const b1 = document.getElementById('b1');
+    const b2 = document.getElementById('b2');
+    const aText = a1.nextElementSibling;
+    const a2Text = a2.nextElementSibling;
+    const bText = b1.nextElementSibling;
+    const b2Text = b2.nextElementSibling;
+
+    // Starting positions
+    let aPos = {x:60, y:200};
+    let a2Pos = {x:40, y:200};
+    let bPos = {x:80, y:200};
+    let b2Pos = {x:100, y:200};
+
+    // Waypoints: Alpha goes up then right; Bravo goes down then right
+    const alphaWaypoints = [{x:60,y:80},{x:410,y:80}];
+    const bravo1Waypoints = [{x:80,y:310},{x:410,y:310},{x:410,y:258}];
+
+    function moveTo(cx, cy, tx, ty, steps, cb) {
+      let step = 0;
+      const dx = (tx - cx) / steps;
+      const dy = (ty - cy) / steps;
+      const interval = setInterval(() => {
+        cx += dx; cy += dy; step++;
+        if (step >= steps) { cx = tx; cy = ty; clearInterval(interval); if(cb) cb(); }
+        return [cx, cy];
+      }, 16);
+      return {cx: () => cx, cy: () => cy, interval};
+    }
+
+    function animGroup(elem, tElem, waypoints, delay, onDone) {
+      setTimeout(() => {
+        let wIdx = 0;
+        let cx = parseFloat(elem.getAttribute('cx'));
+        let cy = parseFloat(elem.getAttribute('cy'));
+        function nextWaypoint() {
+          if (wIdx >= waypoints.length) { if(onDone) onDone(); return; }
+          const {x: tx, y: ty} = waypoints[wIdx++];
+          const dist = Math.sqrt((tx-cx)**2 + (ty-cy)**2);
+          const steps = Math.max(1, Math.round(dist / 2));
+          let s = 0;
+          const dx = (tx-cx)/steps, dy = (ty-cy)/steps;
+          const iv = setInterval(() => {
+            cx += dx; cy += dy; s++;
+            elem.setAttribute('cx', cx); elem.setAttribute('cy', cy);
+            if(tElem) { tElem.setAttribute('x', cx); tElem.setAttribute('y', cy+4); }
+            if(s >= steps) { cx=tx; cy=ty; clearInterval(iv); nextWaypoint(); }
+          }, 16);
+        }
+        nextWaypoint();
+      }, delay);
+    }
+
+    // Animate Alpha (A1 then A2 slightly behind)
+    animGroup(a1, a1.nextElementSibling, alphaWaypoints, 0, null);
+    animGroup(a2, a2.nextElementSibling, [{x:40,y:80},{x:390,y:80}], 200, null);
+    // Animate Bravo
+    animGroup(b1, b1.nextElementSibling, bravo1Waypoints, 0, null);
+    animGroup(b2, b2.nextElementSibling, [{x:100,y:310},{x:410,y:310},{x:410,y:278}], 200, () => {
+      setTimeout(() => {
+        btn.textContent = '▶ Animer l\'approche';
+        btn.disabled = false;
+        animRunning = false;
+        // Reset
+        ['a1','a2','b1','b2'].forEach(id => {
+          const el = document.getElementById(id);
+          const defaults = {a1:[60,200],a2:[40,200],b1:[80,200],b2:[100,200]};
+          const [x,y] = defaults[id];
+          el.setAttribute('cx', x); el.setAttribute('cy', y);
+          const t = el.nextElementSibling;
+          if(t && t.tagName==='text') { t.setAttribute('x', x); t.setAttribute('y', y+4); }
+        });
+      }, 1500);
+    });
+  }
+
+  // ── YEAR ──
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ── TIMELINE ──
+  function tlClick(el, idx) {
+    const items = document.querySelectorAll('.tl-item');
+    items.forEach((it, i) => {
+      it.classList.remove('active');
+      if (i < idx) it.classList.add('done');
+      else it.classList.remove('done');
+    });
+    el.classList.add('active');
+    el.classList.remove('done');
+  }
+
+  // ── CARTE TACTIQUE ──
+  const TAC_STATES = {}; // room -> 'wait'|'clearing'|'secure'|'danger'
+  const TAC_ROOMS = ['entree','couloir','s1','s2','bureau','esc','fond'];
+  let tacMode = 'clear';
+  TAC_ROOMS.forEach(r => TAC_STATES[r] = r === 'esc' ? 'danger' : 'wait');
+
+  const TAC_STYLE = {
+    wait:    {fill:'#1e2518', stroke:'#444',     label:'#666',    state:'En attente'},
+    clearing:{fill:'#1a2e08', stroke:'#f5a623',  label:'#f5a623', state:'En cours…'},
+    secure:  {fill:'#0f2212', stroke:'#4caf50',  label:'#6fcf4a', state:'✓ Sécurisée'},
+    danger:  {fill:'#2a1010', stroke:'#d93025',  label:'#d93025', state:'⚠ Zone à risque'}
+  };
+
+  function tacRender() {
+    TAC_ROOMS.forEach(r => {
+      const st = TAC_STATES[r];
+      const sty = TAC_STYLE[st];
+      const bg = document.getElementById('rm-'+r+'-bg');
+      const lb = document.getElementById('rm-'+r+'-label');
+      const sv = document.getElementById('rm-'+r+'-state');
+      if (bg) { bg.style.fill = sty.fill; bg.style.stroke = sty.stroke; bg.setAttribute('stroke', sty.stroke); }
+      if (lb) lb.style.fill = sty.label;
+      if (sv) { sv.textContent = sty.state; sv.style.fill = sty.label; }
+    });
+    const secured = TAC_ROOMS.filter(r => TAC_STATES[r] === 'secure').length;
+    const msg = document.getElementById('tac-msg');
+    if (secured === TAC_ROOMS.length) {
+      msg.style.color = 'var(--green2)';
+      msg.textContent = '✅ Opération réussie — Toutes les zones sont sécurisées !';
+    } else if (secured > 0) {
+      msg.style.color = 'var(--amber)';
+      msg.textContent = `${secured}/${TAC_ROOMS.length} zones sécurisées — Progression en cours…`;
+    } else {
+      msg.style.color = 'var(--text2)';
+      msg.textContent = 'Cliquez sur les pièces pour lancer le clearing. Commencez par l\'Entrée.';
+    }
+  }
+
+  function tacClick(room) {
+    if (tacMode === 'danger') {
+      TAC_STATES[room] = TAC_STATES[room] === 'danger' ? 'wait' : 'danger';
+    } else {
+      const cur = TAC_STATES[room];
+      if (cur === 'wait') TAC_STATES[room] = 'clearing';
+      else if (cur === 'clearing') TAC_STATES[room] = 'secure';
+      else if (cur === 'secure') TAC_STATES[room] = 'wait';
+      else if (cur === 'danger') {
+        document.getElementById('tac-msg').textContent = '⚠ Zone dangereuse — Créez un piège à l\'extérieur plutôt que d\'intervenir !';
+        document.getElementById('tac-msg').style.color = 'var(--red)';
+        return;
+      }
+    }
+    tacRender();
+  }
+
+  function tacSetMode(m) {
+    tacMode = m;
+    document.querySelectorAll('.tac-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  function tacReset() {
+    TAC_ROOMS.forEach(r => TAC_STATES[r] = r === 'esc' ? 'danger' : 'wait');
+    tacRender();
+  }
+
+  tacRender();
+
+  // ── QUIZ ──
+  const QUIZ = [
+    {
+      q: 'Lors d\'une approche, quelle est la première chose à faire pour éviter d\'être vus ?',
+      opts: ['Courir directement vers le bâtiment','Sortir de la route principale immédiatement','Appeler les suspects pour les distraire','Attendre la nuit'],
+      ans: 1,
+      exp: 'Il faut quitter la route principale dès que possible pour éviter tout soupçon des suspects.'
+    },
+    {
+      q: 'Que se passe-t-il si vous entrez tous dans le bâtiment en même temps ?',
+      opts: ['C\'est plus rapide et donc mieux','Vous violez une règle de sécurité fondamentale','Rien de particulier','Seul Bravo peut entrer en premier'],
+      ans: 1,
+      exp: 'C\'est une règle de sécurité absolue : ne jamais entrer tous en même temps. A1 entre et couvre gauche, B1 entre et couvre droite.'
+    },
+    {
+      q: 'Face à un escalier trop étroit pour une colonne d\'assaut, quelle est la bonne décision ?',
+      opts: ['Descendre quand même, rapidement','Envoyer un seul agent en éclaireur','Créer un piège à l\'extérieur et attendre les suspects','Utiliser des grenades pour nettoyer'],
+      ans: 2,
+      exp: 'Ne jouez pas au héros. Créer un piège extérieur est toujours préférable — vous êtes entraînés à être plus patients que les suspects.'
+    },
+    {
+      q: 'Que signifie "clearer une pièce" ?',
+      opts: ['La repeindre en vert','Sécuriser la pièce en éliminant toute menace et couvrant tous les angles','En sortir le plus vite possible','La photographier pour le rapport'],
+      ans: 1,
+      exp: 'Clearer = sécuriser méthodiquement une pièce. Une pièce clearée est sous contrôle allié et peut servir de base pour la pièce suivante.'
+    },
+    {
+      q: 'Combien de phases comporte le CQB ?',
+      opts: ['1 phase (l\'action directe)','3 phases (approche, assaut, extraction)','2 phases (préparation et action)','4 phases selon la doctrine'],
+      ans: 2,
+      exp: 'Le CQB se découpe en 2 phases : la phase de préparation (plan, rôles) et la phase d\'action (exécution, neutralisation, clearing).'
+    },
+    {
+      q: 'Quel soutien est primordial à demander avant chaque intervention en bâtiment ?',
+      opts: ['Un médecin en stand-by uniquement','L\'armée de l\'air et un FAEM en appui','Un sniper sur le toit','Un véhicule blindé à l\'entrée'],
+      ans: 1,
+      exp: 'Il faut toujours demander le soutien de l\'armée de l\'air ET un FAEM qui guidera sur les déplacements des suspects.'
+    }
+  ];
+
+  let qIdx = 0, qScore = 0, qAnswered = false;
+
+  function renderQuiz() {
+    const pips = document.getElementById('quiz-pips');
+    pips.innerHTML = QUIZ.map((_, i) => `<div class="quiz-pip ${i < qIdx ? 'done' : i === qIdx ? 'active' : ''}"></div>`).join('');
+
+    if (qIdx >= QUIZ.length) {
+      document.getElementById('quiz-container').innerHTML = `
+        <div class="quiz-score">
+          <div class="score-num">${qScore}<span style="font-size:1.5rem;color:var(--text2)">/${QUIZ.length}</span></div>
+          <p style="margin-top:.8rem;color:var(--text2)">${qScore === QUIZ.length ? '🎖 Parfait — Vous êtes opérationnel !' : qScore >= 4 ? '✅ Bon résultat — Quelques points à revoir.' : '⚠ Formation à reprendre avant déploiement.'}</p>
+          <button onclick="qIdx=0;qScore=0;qAnswered=false;renderQuiz()" style="margin-top:1.5rem;background:var(--green);color:#000;border:none;padding:.7rem 2rem;font-size:.85rem;font-weight:700;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.07em">↺ Recommencer</button>
+        </div>`;
+      return;
+    }
+
+    const q = QUIZ[qIdx];
+    document.getElementById('quiz-container').innerHTML = `
+      <div class="quiz-q"><span class="q-num">Question ${qIdx+1} / ${QUIZ.length}</span>${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((o,i) => `<button class="quiz-opt" onclick="quizAnswer(this,${i})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb"></div>
+      <div class="quiz-nav">
+        <span></span>
+        <button id="qnext" onclick="qIdx++;qAnswered=false;renderQuiz()" disabled>Question suivante →</button>
+      </div>`;
+    qAnswered = false;
+  }
+
+  function quizAnswer(btn, idx) {
+    if (qAnswered) return;
+    qAnswered = true;
+    const q = QUIZ[qIdx];
+    const opts = document.querySelectorAll('.quiz-opt');
+    opts.forEach(b => b.disabled = true);
+    if (idx === q.ans) {
+      btn.classList.add('correct');
+      qScore++;
+      const fb = document.getElementById('qfb');
+      fb.className = 'quiz-feedback show ok';
+      fb.textContent = '✓ Correct — ' + q.exp;
+    } else {
+      btn.classList.add('wrong');
+      opts[q.ans].classList.add('correct');
+      const fb = document.getElementById('qfb');
+      fb.className = 'quiz-feedback show ko';
+      fb.textContent = '✗ Incorrect — ' + q.exp;
+    }
+    document.getElementById('qnext').disabled = false;
+  }
+
+  renderQuiz();
+
+  // ── CHECKLIST ──
+  const CL_TOTAL = 12;
+  function clCheck(el) {
+    el.classList.toggle('checked');
+    const check = el.querySelector('.cl-check');
+    check.textContent = el.classList.contains('checked') ? '✓' : '';
+    const done = document.querySelectorAll('.cl-item.checked').length;
+    document.getElementById('cl-fill').style.width = (done/CL_TOTAL*100) + '%';
+    document.getElementById('cl-count').textContent = `${done} / ${CL_TOTAL} points validés`;
+  }
+  function clReset() {
+    document.querySelectorAll('.cl-item').forEach(el => {
+      el.classList.remove('checked');
+      el.querySelector('.cl-check').textContent = '';
+    });
+    document.getElementById('cl-fill').style.width = '0%';
+    document.getElementById('cl-count').textContent = `0 / ${CL_TOTAL} points validés`;
+  }
+</script>
+</body>
+</html>
