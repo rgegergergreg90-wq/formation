@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brigade Terrestre Immigration — Milica</title>
+<style>
+  :root {
+    --bg:    #0d0f0e;
+    --bg2:   #13180f;
+    --bg3:   #1a2012;
+    --card:  #1e2518;
+    --border:#2e3d20;
+    --blue:  #4caf50;
+    --blue2: #6fcf4a;
+    --gold:  #f5a623;
+    --gold2: #ffc85a;
+    --red:   #d93025;
+    --green: #4caf50;
+    --text:  #c8d4b0;
+    --text2: #8a9970;
+    --white: #eef3e2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── PROGRESS ── */
+  #progress-bar {
+    position: fixed; top: 60px; left: 0;
+    height: 3px; background: var(--gold);
+    width: 0%; z-index: 99; transition: width .1s;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,12,20,.96);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: .7rem;
+    font-weight: 700; font-size: .95rem;
+    letter-spacing: .06em; color: var(--gold);
+    text-transform: uppercase;
+  }
+  .logo svg { width: 28px; height: 28px; }
+  nav { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+  nav a {
+    color: var(--text2); text-decoration: none;
+    font-size: .78rem; letter-spacing: .07em;
+    text-transform: uppercase; transition: color .2s;
+  }
+  nav a:hover { color: var(--gold2); }
+
+  /* ── HERO ── */
+  .hero {
+    height: 100vh; display: flex; align-items: center;
+    justify-content: center; flex-direction: column;
+    text-align: center; position: relative; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 55%, #1a2250 0%, var(--bg) 70%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233d6bce' fill-opacity='0.04'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .unit-badge {
+    font-size: .68rem; letter-spacing: .35em; color: var(--gold);
+    text-transform: uppercase; border: 1px solid var(--gold);
+    padding: .3rem 1.4rem; margin-bottom: 2rem;
+    animation: glow 2.5s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { box-shadow: 0 0 4px rgba(232,184,75,.2); }
+    to   { box-shadow: 0 0 14px rgba(232,184,75,.5); }
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    font-weight: 800; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--white); line-height: 1.1;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero p { max-width: 580px; margin: 1.4rem auto; color: var(--text2); font-size: .97rem; }
+  .hero-badges { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: .3rem .9rem;
+    font-size: .75rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--blue2);
+  }
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    color: var(--text2); font-size: .73rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    animation: bounce .7s ease infinite alternate;
+  }
+  @keyframes bounce { to { transform: translateX(-50%) translateY(7px); } }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
+  section { padding: 6rem 0; }
+  section:nth-child(even) { background: var(--bg2); }
+  .section-label {
+    font-size: .68rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: .5rem;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.3rem);
+    font-weight: 700; color: var(--white); margin-bottom: 1rem;
+  }
+  h3 { font-size: 1.05rem; font-weight: 600; color: var(--white); margin-bottom: .4rem; }
+  p { margin-bottom: 1rem; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.5rem;
+  }
+  .card-grid { display: grid; gap: 1.2rem; }
+  .card-grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); }
+  .card-grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); }
+
+  /* ── STAT CARDS ── */
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.5rem; text-align: center;
+  }
+  .stat-num { font-size: 2.8rem; font-weight: 800; color: var(--gold); line-height: 1; }
+  .stat-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text2); margin-top: .4rem; }
+
+  /* ── ALERTS ── */
+  .alert {
+    border-radius: 6px; padding: 1rem 1.2rem;
+    display: flex; gap: .8rem; align-items: flex-start; margin: 1.2rem 0;
+  }
+  .alert-blue  { background: #0d1a38; border-left: 3px solid var(--blue2); }
+  .alert-gold  { background: #1f1800; border-left: 3px solid var(--gold); }
+  .alert-red   { background: #200e0e; border-left: 3px solid var(--red); }
+  .alert-green { background: #0a1f14; border-left: 3px solid var(--green); }
+  .alert-icon  { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+  .alert-title { font-weight: 700; font-size: .82rem; letter-spacing: .05em; text-transform: uppercase; margin-bottom: .25rem; }
+  .alert-blue  .alert-title { color: var(--blue2); }
+  .alert-gold  .alert-title { color: var(--gold); }
+  .alert-red   .alert-title { color: var(--red); }
+  .alert-green .alert-title { color: var(--green); }
+
+  /* ── MISSION CARDS ── */
+  .mission-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.8rem; position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .mission-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .mission-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1rem; background: var(--bg3);
+    border: 1px solid var(--border);
+  }
+  .mission-num {
+    position: absolute; top: 1.2rem; right: 1.4rem;
+    font-size: 3rem; font-weight: 900; color: var(--border);
+    line-height: 1; user-select: none;
+  }
+  .mission-tags { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .8rem; }
+  .tag {
+    font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+    border-radius: 20px; padding: .2rem .6rem;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+  }
+
+  /* ── PROCEDURE STEPS ── */
+  .proc-steps { display: flex; flex-direction: column; gap: 0; margin-top: 2rem; }
+  .proc-step { display: flex; gap: 1rem; position: relative; }
+  .proc-line { display: flex; flex-direction: column; align-items: center; }
+  .proc-dot {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--bg3); border: 2px solid var(--blue);
+    color: var(--blue2); display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: .85rem;
+    flex-shrink: 0; cursor: pointer; transition: all .25s; z-index: 1;
+  }
+  .proc-step.active .proc-dot { background: var(--gold); border-color: var(--gold2); color: #000; }
+  .proc-step.done   .proc-dot { background: var(--green); border-color: var(--green); color: #fff; font-size: .9rem; }
+  .proc-connector { width: 2px; flex: 1; background: var(--border); margin: 3px 0; }
+  .proc-step:last-child .proc-connector { display: none; }
+  .proc-body { padding-bottom: 1.6rem; padding-top: .4rem; }
+  .proc-body h3 { margin-bottom: .3rem; font-size: .95rem; cursor: pointer; }
+  .proc-body h3:hover { color: var(--gold2); }
+  .proc-detail {
+    font-size: .87rem; color: var(--text2); display: none;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: .8rem 1rem; margin-top: .5rem;
+  }
+  .proc-step.active .proc-detail { display: block; animation: fadeIn .25s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+
+  /* ── CHRONO SIMULATOR ── */
+  .chrono-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 2rem; text-align: center;
+  }
+  .chrono-display {
+    font-size: 4rem; font-weight: 900; color: var(--gold);
+    font-variant-numeric: tabular-nums; letter-spacing: .05em;
+    margin: 1rem 0; font-family: 'Courier New', monospace;
+  }
+  .chrono-display.running { animation: pulse-gold 1s infinite; }
+  @keyframes pulse-gold { 0%,100%{opacity:1} 50%{opacity:.75} }
+  .chrono-btns { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+  .btn {
+    border: none; padding: .7rem 1.6rem; font-size: .82rem;
+    font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    border-radius: 4px; cursor: pointer; transition: all .2s;
+  }
+  .btn-gold  { background: var(--gold);  color: #000; }
+  .btn-gold:hover  { background: var(--gold2); }
+  .btn-blue  { background: var(--blue);  color: #fff; }
+  .btn-blue:hover  { background: var(--blue2); }
+  .btn-ghost { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .chrono-status { font-size: .82rem; color: var(--text2); margin-top: .5rem; min-height: 1.4em; }
+
+  /* ── CHECKLIST ── */
+  .checklist { display: flex; flex-direction: column; gap: .5rem; }
+  .cl-item {
+    display: flex; align-items: flex-start; gap: .9rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: .9rem 1rem; cursor: pointer;
+    transition: border-color .2s, background .2s; user-select: none;
+  }
+  .cl-item.checked { border-color: var(--green); background: #0a1f14; }
+  .cl-check {
+    width: 20px; height: 20px; border-radius: 4px;
+    border: 2px solid var(--border); flex-shrink: 0; margin-top: .1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; transition: all .2s;
+  }
+  .cl-item.checked .cl-check { background: var(--green); border-color: var(--green); color: #fff; }
+  .cl-text { font-size: .9rem; }
+  .cl-item.checked .cl-text { color: var(--text2); text-decoration: line-through; }
+  .cl-group-label { font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin: 1.2rem 0 .5rem; }
+  .cl-progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin: .8rem 0; overflow: hidden; }
+  .cl-progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .3s; }
+
+  /* ── FLOW DIAGRAM ── */
+  .diagram-wrap {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0;
+    text-align: center; overflow: hidden;
+  }
+  .diagram-wrap svg { max-width: 100%; }
+
+  /* ── LIGHTBOX ── */
+  #lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.93); z-index: 500;
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+  #lightbox-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 2rem; text-align: center; font-size: .78rem; color: var(--text2);
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="13" stroke="#e8b84b" stroke-width="1.8"/>
+      <path d="M7 14h14M14 7v14" stroke="#e8b84b" stroke-width="1.5"/>
+      <rect x="9" y="9" width="10" height="10" stroke="#e8b84b" stroke-width="1.2" fill="none"/>
+    </svg>
+    Milica — Immigration
+  </div>
+  <nav>
+    <a href="#presentation">Présentation</a>
+    <a href="#missions">Missions</a>
+    <a href="#procedure">Procédure</a>
+    <a href="#chrono">Chronomètre</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#schema">Schéma</a>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="unit-badge">Unité Terrestre — Milica</div>
+  <h1>Brigade Terrestre<br><span>Immigration</span></h1>
+  <p>Contrôle des entreprises, lutte contre le travail clandestin et protection des droits des travailleurs à Cayo Perico.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">📋 Contrôle entreprises</span>
+    <span class="hero-badge">💰 Revenus état civil</span>
+    <span class="hero-badge">🛡️ Droits des travailleurs</span>
+  </div>
+  <div class="scroll-hint">
+    <span>Défiler</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ── PRÉSENTATION ── -->
+<section id="presentation">
+  <div class="container">
+    <div class="section-label">01 — Vue d'ensemble</div>
+    <h2>Présentation de la Brigade</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-bottom:2rem">
+      <div>
+        <p>La <strong>Brigade Terrestre Immigration</strong> est une nouvelle et innovante branche de l'unité terrestre de l'armée, spécialement créée pour contrôler les entreprises de Cayo Perico et lutter efficacement contre le <strong>travail clandestin</strong>.</p>
+        <p>En plus de ses fonctions de surveillance et d'intervention, la brigade joue un rôle crucial dans la régulation des activités économiques locales, assurant que les entreprises opèrent en conformité avec les lois en vigueur.</p>
+        <p>Par son action rigoureuse et déterminée, la Brigade contribue significativement à <strong>augmenter le chiffre d'affaires de l'état civil</strong>, en réduisant les pertes fiscales dues au travail illégal.</p>
+      </div>
+      <div>
+        <img src="slide1_img0.jpg" alt="Brigade Terrestre Immigration" onclick="openLightbox(this.src)"
+          style="width:100%;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:block">
+      </div>
+    </div>
+
+    <div class="card-grid cols-3">
+      <div class="stat-card">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Missions principales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">9</div>
+        <div class="stat-label">Étapes d'intervention</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Tolérance travail illégal</div>
+      </div>
+    </div>
+
+    <div class="alert alert-blue" style="margin-top:2rem">
+      <div class="alert-icon">ℹ️</div>
+      <div>
+        <div class="alert-title">Rôle global</div>
+        La Brigade renforce non seulement la sécurité et la justice sur le terrain, mais soutient également la prospérité économique globale de la région en favorisant une économie plus transparente et équitable.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MISSIONS ── -->
+<section id="missions">
+  <div class="container">
+    <div class="section-label">02 — Objectifs</div>
+    <h2>Objectifs et missions principales</h2>
+    <p>Trois axes d'action complémentaires qui définissent le mandat de la Brigade Terrestre Immigration.</p>
+
+    <div class="card-grid cols-3" style="margin-top:2rem">
+      <div class="mission-card">
+        <div class="mission-num">01</div>
+        <div class="mission-icon">🏭</div>
+        <h3>Contrôle des entreprises</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin-top:.5rem">Inspecter régulièrement les entreprises de Cayo Perico pour vérifier la légalité de l'emploi de leurs travailleurs. Identifier les travailleurs clandestins et prendre les mesures appropriées.</p>
+        <div class="mission-tags">
+          <span class="tag">Inspection</span>
+          <span class="tag">Visas</span>
+          <span class="tag">Sanctions</span>
+        </div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-num">02</div>
+        <div class="mission-icon">💰</div>
+        <h3>Revenus de l'état civil</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin-top:.5rem">Assurer que toutes les entreprises respectent les obligations fiscales et contribuent équitablement aux revenus de la République. Augmenter les sources de revenu de la République.</p>
+        <div class="mission-tags">
+          <span class="tag">Fiscalité</span>
+          <span class="tag">Régularisation</span>
+          <span class="tag">Visas</span>
+        </div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-num">03</div>
+        <div class="mission-icon">🛡️</div>
+        <h3>Protection des travailleurs</h3>
+        <p style="font-size:.88rem;color:var(--text2);margin-top:.5rem">Garantir que tous les travailleurs, y compris les plus vulnérables, sont traités conformément aux lois. Faciliter l'accès à des conditions de travail sûres et équitables.</p>
+        <div class="mission-tags">
+          <span class="tag">Droits</span>
+          <span class="tag">Conditions</span>
+          <span class="tag">Équité</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-gold" style="margin-top:2rem">
+      <div class="alert-icon">⚖️</div>
+      <div>
+        <div class="alert-title">Principe fondamental</div>
+        Les travailleurs en règle peuvent rester travailler. Ceux sans visa valide sont pris en charge et conduits au bureau des visas pour régularisation — avant d'être ramenés sur leur point de récolte.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROCÉDURE ── -->
+<section id="procedure">
+  <div class="container">
+    <div class="section-label">03 — Marche à suivre</div>
+    <h2>Procédure d'inspection et d'intervention</h2>
+    <p>Cliquez sur chaque étape pour afficher son détail. Suivez scrupuleusement l'ordre pour garantir une intervention efficace et organisée.</p>
+
+    <div class="proc-steps" id="proc-root">
+
+      <div class="proc-step active" onclick="procClick(this,0)">
+        <div class="proc-line">
+          <div class="proc-dot">1</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Vérifier que l'état civil est ouvert</h3>
+          <div class="proc-detail">Avant de se déplacer sur le terrain, confirmer que l'état civil est ouvert et prêt à recevoir du monde. Inutile de réaliser un contrôle si le bureau des visas ne peut pas traiter les personnes interceptées.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,1)">
+        <div class="proc-line">
+          <div class="proc-dot">2</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Rejoindre le point de récolte en camion</h3>
+          <div class="proc-detail">Se rendre sur le point de récolte voulu avec un camion. Prendre contact avec un chef de travail pour l'informer du contrôle à venir. La communication avec les responsables est essentielle pour maintenir l'ordre.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,2)">
+        <div class="proc-line">
+          <div class="proc-dot">3</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>⏱ Lancer le chronomètre</h3>
+          <div class="proc-detail">Avant de stopper les travailleurs dans leur récolte, lancer immédiatement le chronomètre. Le temps perdu sera comptabilisé pour être ajouté au contrat des travailleurs à la fin de l'intervention — c'est primordial pour l'organisation des chefs de travail.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,3)">
+        <div class="proc-line">
+          <div class="proc-dot">4</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Mettre tous les travailleurs en ligne</h3>
+          <div class="proc-detail">Regrouper et aligner proprement tous les travailleurs avant de commencer le contrôle des visas. Veiller à ce que tout le monde soit en ligne avant de commencer pour éviter d'en rater un. L'ordre est impératif.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,4)">
+        <div class="proc-line">
+          <div class="proc-dot">5</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Contrôle des visas</h3>
+          <div class="proc-detail">Procéder au contrôle individuel des visas de chaque travailleur. Les travailleurs en règle peuvent rester travailler immédiatement. Les travailleurs sans visa valide sont séparés et montés dans les camions pour être conduits à la frontière.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,5)">
+        <div class="proc-line">
+          <div class="proc-dot">6</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Se garer à la frontière</h3>
+          <div class="proc-detail">Stationner le camion à la frontière dans un endroit qui ne dérange personne, suffisamment proche du bureau des visas. L'emplacement doit être pratique pour faire descendre les personnes une par une sans créer de désordre.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,6)">
+        <div class="proc-line">
+          <div class="proc-dot">7</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Traitement individuel à la frontière</h3>
+          <div class="proc-detail">Faire descendre une personne à la fois. Fouiller la personne, puis l'amener faire la queue derrière la porte de la frontière. Passer au suivant et ainsi de suite — un par un, sans précipitation, pour maintenir l'ordre et ne perdre personne.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,7)">
+        <div class="proc-line">
+          <div class="proc-dot">8</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>Attendre que tous les visas soient faits</h3>
+          <div class="proc-detail">Une fois le visa réalisé, faire monter la personne dans le camion. Attendre que <strong>tout le monde</strong> ait fini avant de repartir. Il est très important de ramener tous les travailleurs ensemble pour l'organisation des chefs de travail sur le point de récolte.</div>
+        </div>
+      </div>
+
+      <div class="proc-step" onclick="procClick(this,8)">
+        <div class="proc-line">
+          <div class="proc-dot">9</div>
+          <div class="proc-connector"></div>
+        </div>
+        <div class="proc-body">
+          <h3>⏱ Arrêter le chronomètre — Retour au champ</h3>
+          <div class="proc-detail">De retour sur le champ, avant de laisser les travailleurs reprendre leur activité, les remettre en ligne et arrêter le chronomètre. Cette durée permet aux chefs de travail de rajouter le temps perdu à leur contrat. Ne jamais oublier cette étape finale.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="alert alert-red" style="margin-top:1rem">
+      <div class="alert-icon">⚠️</div>
+      <div>
+        <div class="alert-title">Point critique — Retour groupé obligatoire</div>
+        Il est <strong>très important</strong> de ramener tous les travailleurs ensemble sur le point de récolte. Un retour individuel désorganise les chefs de travail et perturbe toute l'opération.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHRONO ── -->
+<section id="chrono">
+  <div class="container">
+    <div class="section-label">04 — Outil</div>
+    <h2>Chronomètre d'intervention</h2>
+    <p>Lancez le chronomètre dès que vous stoppez les travailleurs (étape 3). Arrêtez-le au retour sur le champ (étape 9) pour communiquer la durée aux chefs de travail.</p>
+
+    <div class="chrono-box" style="max-width:480px;margin:2rem auto 0">
+      <div style="font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);margin-bottom:.5rem">Durée d'intervention</div>
+      <div class="chrono-display" id="chrono-display">00:00:00</div>
+      <div class="chrono-status" id="chrono-status">En attente de démarrage</div>
+      <div class="chrono-btns">
+        <button class="btn btn-gold" id="chrono-start" onclick="chronoStart()">▶ Démarrer</button>
+        <button class="btn btn-ghost" id="chrono-pause" onclick="chronoPause()" disabled>⏸ Pause</button>
+        <button class="btn btn-ghost" id="chrono-reset" onclick="chronoReset()">↺ Reset</button>
+      </div>
+      <div id="chrono-laps" style="margin-top:1.2rem;font-size:.8rem;color:var(--text2);text-align:left;display:none">
+        <div style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Interventions enregistrées</div>
+        <div id="chrono-lap-list" style="display:flex;flex-direction:column;gap:.3rem"></div>
+      </div>
+      <button class="btn btn-blue" onclick="chronoLap()" style="margin-top:.8rem;font-size:.75rem;padding:.5rem 1.2rem" id="chrono-lap-btn" disabled>📌 Enregistrer cette durée</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHECKLIST ── -->
+<section id="checklist">
+  <div class="container">
+    <div class="section-label">05 — Opérationnel</div>
+    <h2>Checklist d'intervention</h2>
+    <p>Cochez chaque point au fur et à mesure de l'intervention pour ne rien oublier.</p>
+
+    <div style="margin-top:1rem">
+      <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-fill" style="width:0%"></div></div>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.5rem" id="cl-count">0 / 11 points validés</p>
+    </div>
+
+    <div class="cl-group-label">📡 Avant le départ</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">État civil ouvert et prêt à recevoir du monde</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Camion disponible pour le transport</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Point de récolte ciblé défini</div></div>
+    </div>
+
+    <div class="cl-group-label">🏭 Sur le terrain</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Chef de travail informé du contrôle</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">⏱ Chronomètre lancé</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Tous les travailleurs alignés avant contrôle</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Visas contrôlés — travailleurs en règle libérés</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Travailleurs sans visa chargés dans le camion</div></div>
+    </div>
+
+    <div class="cl-group-label">🏛️ À la frontière</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Camion garé près du bureau des visas sans gêner</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Traitement individuel : fouille → queue → visa — un par un</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Retour groupé sur le point de récolte — ⏱ chronomètre arrêté</div></div>
+    </div>
+
+    <button onclick="clReset()" style="margin-top:1.5rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:.6rem 1.2rem;border-radius:4px;cursor:pointer;font-size:.82rem;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">↺ Réinitialiser</button>
+  </div>
+</section>
+
+<!-- ── SCHÉMA ── -->
+<section id="schema">
+  <div class="container">
+    <div class="section-label">06 — Visuel</div>
+    <h2>Schéma du flux d'intervention</h2>
+    <p>Vue d'ensemble du déroulement d'une opération de contrôle de bout en bout.</p>
+
+    <div class="diagram-wrap" style="margin-top:1.5rem">
+      <svg width="700" height="480" viewBox="0 0 700 480" style="max-width:100%">
+        <rect width="700" height="480" fill="#0a0c14"/>
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#3d6bce"/>
+          </marker>
+          <marker id="arr-gold" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#e8b84b"/>
+          </marker>
+          <marker id="arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#3aad6e"/>
+          </marker>
+          <marker id="arr-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#c94040"/>
+          </marker>
+        </defs>
+
+        <!-- Node helper: box -->
+        <!-- STEP 1: Vérification état civil -->
+        <rect x="270" y="10" width="160" height="44" fill="#171b2e" stroke="#3d6bce" stroke-width="1.5" rx="6"/>
+        <text x="350" y="28" text-anchor="middle" fill="#b8c4e0" font-size="10" font-weight="bold">1. État civil</text>
+        <text x="350" y="44" text-anchor="middle" fill="#6a7a9e" font-size="9">Vérifier ouverture</text>
+
+        <!-- Arrow down -->
+        <line x1="350" y1="54" x2="350" y2="74" stroke="#3d6bce" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- STEP 2: Point récolte -->
+        <rect x="250" y="75" width="200" height="44" fill="#171b2e" stroke="#3d6bce" stroke-width="1.5" rx="6"/>
+        <text x="350" y="93" text-anchor="middle" fill="#b8c4e0" font-size="10" font-weight="bold">2. Rejoindre point de récolte</text>
+        <text x="350" y="109" text-anchor="middle" fill="#6a7a9e" font-size="9">Camion + contact chef de travail</text>
+
+        <!-- Arrow down -->
+        <line x1="350" y1="119" x2="350" y2="139" stroke="#3d6bce" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- STEP 3: Chrono START -->
+        <rect x="265" y="140" width="170" height="44" fill="#1f1800" stroke="#e8b84b" stroke-width="2" rx="6"/>
+        <text x="350" y="158" text-anchor="middle" fill="#e8b84b" font-size="10" font-weight="bold">⏱ 3. LANCER CHRONO</text>
+        <text x="350" y="174" text-anchor="middle" fill="#9a7a2e" font-size="9">Avant d'arrêter les travailleurs</text>
+
+        <!-- Arrow down -->
+        <line x1="350" y1="184" x2="350" y2="204" stroke="#3d6bce" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- STEP 4: Mise en ligne -->
+        <rect x="250" y="205" width="200" height="44" fill="#171b2e" stroke="#3d6bce" stroke-width="1.5" rx="6"/>
+        <text x="350" y="223" text-anchor="middle" fill="#b8c4e0" font-size="10" font-weight="bold">4. Mettre travailleurs en ligne</text>
+        <text x="350" y="239" text-anchor="middle" fill="#6a7a9e" font-size="9">Tout le monde avant de commencer</text>
+
+        <!-- Arrow down -->
+        <line x1="350" y1="249" x2="350" y2="269" stroke="#3d6bce" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- STEP 5: Contrôle visa (DIAMOND) -->
+        <polygon points="350,270 430,295 350,320 270,295" fill="#121528" stroke="#e8b84b" stroke-width="2"/>
+        <text x="350" y="291" text-anchor="middle" fill="#e8b84b" font-size="9" font-weight="bold">5. Contrôle Visa</text>
+        <text x="350" y="304" text-anchor="middle" fill="#9a7a2e" font-size="8">En règle ?</text>
+
+        <!-- YES (green) -->
+        <line x1="270" y1="295" x2="150" y2="295" stroke="#3aad6e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+        <rect x="50" y="275" width="100" height="40" fill="#0a1f14" stroke="#3aad6e" stroke-width="1.5" rx="5"/>
+        <text x="100" y="291" text-anchor="middle" fill="#3aad6e" font-size="9" font-weight="bold">✓ En règle</text>
+        <text x="100" y="305" text-anchor="middle" fill="#3aad6e" font-size="8">Reste au travail</text>
+
+        <!-- NO (red) -->
+        <line x1="430" y1="295" x2="550" y2="295" stroke="#c94040" stroke-width="1.5" marker-end="url(#arr-red)"/>
+        <rect x="550" y="275" width="120" height="40" fill="#200e0e" stroke="#c94040" stroke-width="1.5" rx="5"/>
+        <text x="610" y="291" text-anchor="middle" fill="#c94040" font-size="9" font-weight="bold">✗ Sans visa</text>
+        <text x="610" y="305" text-anchor="middle" fill="#c94040" font-size="8">Monte dans le camion</text>
+
+        <!-- Red arrow down to step 6 -->
+        <line x1="610" y1="315" x2="610" y2="355" stroke="#c94040" stroke-width="1.5" marker-end="url(#arr-red)"/>
+        <rect x="545" y="356" width="130" height="40" fill="#200e0e" stroke="#c94040" stroke-width="1.5" rx="5"/>
+        <text x="610" y="372" text-anchor="middle" fill="#c94040" font-size="9" font-weight="bold">6. Frontière</text>
+        <text x="610" y="386" text-anchor="middle" fill="#c94040" font-size="8">Garer près bureau visas</text>
+
+        <!-- Step 7 -->
+        <line x1="610" y1="396" x2="610" y2="416" stroke="#c94040" stroke-width="1.5" marker-end="url(#arr-red)"/>
+        <rect x="540" y="417" width="140" height="40" fill="#200e0e" stroke="#c94040" stroke-width="1.5" rx="5"/>
+        <text x="610" y="433" text-anchor="middle" fill="#c94040" font-size="9" font-weight="bold">7. Traitement individuel</text>
+        <text x="610" y="447" text-anchor="middle" fill="#c94040" font-size="8">Fouille → queue → visa</text>
+
+        <!-- Step 8 merges back -->
+        <line x1="540" y1="437" x2="420" y2="437" stroke="#3d6bce" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="255" y="417" width="165" height="40" fill="#171b2e" stroke="#3d6bce" stroke-width="1.5" rx="5"/>
+        <text x="337" y="433" text-anchor="middle" fill="#b8c4e0" font-size="9" font-weight="bold">8. Attendre tout le monde</text>
+        <text x="337" y="447" text-anchor="middle" fill="#6a7a9e" font-size="8">Retour groupé obligatoire</text>
+
+        <!-- Step 9: Chrono STOP -->
+        <line x1="350" y1="320" x2="350" y2="417" stroke="#3d6bce" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="255" y1="437" x2="80" y2="437" stroke="#e8b84b" stroke-width="1.5" marker-end="url(#arr-gold)"/>
+        <rect x="0" y="417" width="80" height="40" fill="#1f1800" stroke="#e8b84b" stroke-width="2" rx="5"/>
+        <text x="40" y="433" text-anchor="middle" fill="#e8b84b" font-size="9" font-weight="bold">⏱ STOP</text>
+        <text x="40" y="447" text-anchor="middle" fill="#9a7a2e" font-size="8">Chrono + ligne</text>
+
+        <!-- Labels -->
+        <text x="195" y="288" fill="#3aad6e" font-size="8">OUI</text>
+        <text x="455" y="288" fill="#c94040" font-size="8">NON</text>
+      </svg>
+    </div>
+
+    <div class="alert alert-gold">
+      <div class="alert-icon">📌</div>
+      <div>
+        <div class="alert-title">À retenir</div>
+        Le chronomètre est la clé de l'opération : lancé avant l'arrêt des travailleurs, arrêté au retour sur le champ après les avoir remis en ligne. Cette durée est remise aux chefs de travail pour compensation contractuelle.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>Brigade Terrestre Immigration — Milica · Unité Terrestre · Document interne</p>
+  <p style="margin-top:.4rem">Réalisé par 06 · <span id="year"></span></p>
+</footer>
+
+<!-- ── LIGHTBOX ── -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+  // ── PROGRESS BAR ──
+  window.addEventListener('scroll', () => {
+    const el = document.documentElement;
+    const pct = (el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  });
+
+  // ── LIGHTBOX ──
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // ── PROCÉDURE STEPS ──
+  function procClick(el, idx) {
+    document.querySelectorAll('.proc-step').forEach((s, i) => {
+      s.classList.remove('active', 'done');
+      if (i < idx) s.classList.add('done');
+    });
+    el.classList.add('active');
+  }
+
+  // ── CHRONOMÈTRE ──
+  let chronoInterval = null, chronoMs = 0, chronoRunning = false, lapCount = 0;
+
+  function chronoFmt(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+
+  function chronoStart() {
+    if (chronoRunning) return;
+    chronoRunning = true;
+    const start = Date.now() - chronoMs;
+    chronoInterval = setInterval(() => {
+      chronoMs = Date.now() - start;
+      document.getElementById('chrono-display').textContent = chronoFmt(chronoMs);
+    }, 100);
+    document.getElementById('chrono-display').classList.add('running');
+    document.getElementById('chrono-status').textContent = '⏱ Intervention en cours…';
+    document.getElementById('chrono-start').disabled = true;
+    document.getElementById('chrono-pause').disabled = false;
+    document.getElementById('chrono-lap-btn').disabled = false;
+  }
+
+  function chronoPause() {
+    if (!chronoRunning) return;
+    chronoRunning = false;
+    clearInterval(chronoInterval);
+    document.getElementById('chrono-display').classList.remove('running');
+    document.getElementById('chrono-status').textContent = '⏸ En pause — durée à communiquer aux chefs de travail : ' + chronoFmt(chronoMs);
+    document.getElementById('chrono-start').disabled = false;
+    document.getElementById('chrono-pause').disabled = true;
+  }
+
+  function chronoReset() {
+    clearInterval(chronoInterval);
+    chronoRunning = false; chronoMs = 0;
+    document.getElementById('chrono-display').textContent = '00:00:00';
+    document.getElementById('chrono-display').classList.remove('running');
+    document.getElementById('chrono-status').textContent = 'En attente de démarrage';
+    document.getElementById('chrono-start').disabled = false;
+    document.getElementById('chrono-pause').disabled = true;
+    document.getElementById('chrono-lap-btn').disabled = true;
+  }
+
+  function chronoLap() {
+    if (!chronoMs) return;
+    lapCount++;
+    const now = new Date().toLocaleTimeString('fr-FR');
+    const list = document.getElementById('chrono-lap-list');
+    const lapsDiv = document.getElementById('chrono-laps');
+    lapsDiv.style.display = 'block';
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;justify-content:space-between;padding:.3rem .5rem;background:var(--bg3);border-radius:4px;border:1px solid var(--border)';
+    item.innerHTML = `<span style="color:var(--gold2)">Intervention #${lapCount}</span><span>${chronoFmt(chronoMs)}</span><span style="color:var(--text2)">${now}</span>`;
+    list.appendChild(item);
+  }
+
+  // ── CHECKLIST ──
+  const CL_TOTAL = 11;
+  function clCheck(el) {
+    el.classList.toggle('checked');
+    el.querySelector('.cl-check').textContent = el.classList.contains('checked') ? '✓' : '';
+    const done = document.querySelectorAll('.cl-item.checked').length;
+    document.getElementById('cl-fill').style.width = (done / CL_TOTAL * 100) + '%';
+    document.getElementById('cl-count').textContent = `${done} / ${CL_TOTAL} points validés`;
+  }
+  function clReset() {
+    document.querySelectorAll('.cl-item').forEach(el => {
+      el.classList.remove('checked');
+      el.querySelector('.cl-check').textContent = '';
+    });
+    document.getElementById('cl-fill').style.width = '0%';
+    document.getElementById('cl-count').textContent = `0 / ${CL_TOTAL} points validés`;
+  }
+
+  // ── YEAR ──
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

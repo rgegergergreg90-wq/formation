@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sécurisation Z.A — Milica</title>
+<style>
+  :root {
+    --bg:#0d0f0e; --bg2:#13180f; --bg3:#1a2012;
+    --card:#1e2518; --border:#2e3d20;
+    --green:#4caf50; --green2:#6fcf4a;
+    --red:#d93025; --amber:#f5a623;
+    --text:#c8d4b0; --text2:#8a9970; --white:#eef3e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7;overflow-x:hidden;}
+
+  /* PROGRESS */
+  #progress-bar{position:fixed;top:60px;left:0;height:3px;background:var(--green2);width:0%;z-index:99;transition:width .1s;}
+
+  /* HEADER */
+  header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,15,14,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;}
+  .logo{display:flex;align-items:center;gap:.7rem;font-weight:700;font-size:.9rem;letter-spacing:.06em;color:var(--green2);text-transform:uppercase;}
+  .logo svg{width:28px;height:28px;}
+  nav{display:flex;gap:1rem;flex-wrap:wrap;}
+  nav a{color:var(--text2);text-decoration:none;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;transition:color .2s;}
+  nav a:hover{color:var(--green2);}
+
+  /* DISCLAIMER */
+  #disclaimer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+  .disclaimer-box{background:var(--bg3);border:1px solid var(--red);border-radius:10px;max-width:600px;width:100%;padding:2.5rem;text-align:center;}
+  .cls-label{font-size:.65rem;letter-spacing:.4em;color:var(--red);text-transform:uppercase;margin-bottom:1.5rem;animation:pulse-red 2s infinite;}
+  @keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.6}}
+  .disclaimer-box h2{font-size:1.4rem;margin-bottom:1rem;color:var(--white);}
+  .disclaimer-box p{font-size:.88rem;color:var(--text2);margin-bottom:.8rem;}
+  #confirm-btn{margin-top:1.5rem;background:var(--green);color:#000;border:none;padding:.8rem 2.5rem;font-size:.9rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:background .2s;}
+  #confirm-btn:hover{background:var(--green2);}
+
+  /* HERO */
+  .hero{height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 55%,#1e3a14 0%,var(--bg) 70%);}
+  .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234caf50' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+  .cls-badge{font-size:.68rem;letter-spacing:.35em;color:var(--red);text-transform:uppercase;border:1px solid var(--red);padding:.3rem 1.4rem;margin-bottom:2rem;animation:pulse-red 2s infinite;}
+  .hero h1{font-size:clamp(2.2rem,5.5vw,4.5rem);font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:1.1;}
+  .hero h1 span{color:var(--green2);}
+  .hero p{max-width:580px;margin:1.4rem auto;color:var(--text2);font-size:.97rem;}
+  .hero-badges{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;}
+  .hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:.3rem .9rem;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green2);}
+  .scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);color:var(--text2);font-size:.73rem;letter-spacing:.12em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:bounce .7s ease infinite alternate;}
+  @keyframes bounce{to{transform:translateX(-50%) translateY(7px);}}
+
+  /* LAYOUT */
+  .container{max-width:1080px;margin:0 auto;padding:0 2rem;}
+  section{padding:6rem 0;}
+  section:nth-child(even){background:var(--bg2);}
+  .section-label{font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:var(--green2);margin-bottom:.5rem;}
+  h2{font-size:clamp(1.5rem,3vw,2.3rem);font-weight:700;color:var(--white);margin-bottom:1rem;}
+  h3{font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:.4rem;}
+  p{margin-bottom:1rem;}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;}
+  .card-grid{display:grid;gap:1.2rem;}
+  .card-grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+  .card-grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+  @media(max-width:650px){.card-grid.cols-2,.card-grid.cols-3{grid-template-columns:1fr;}.split-2{grid-template-columns:1fr!important;}}
+
+  /* STATS */
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;text-align:center;}
+  .stat-num{font-size:2.8rem;font-weight:800;color:var(--green2);line-height:1;}
+  .stat-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);margin-top:.4rem;}
+
+  /* ALERTS */
+  .alert{border-radius:6px;padding:1rem 1.2rem;display:flex;gap:.8rem;align-items:flex-start;margin:1.2rem 0;}
+  .alert-red{background:#200e0e;border-left:3px solid var(--red);}
+  .alert-amber{background:#1f1800;border-left:3px solid var(--amber);}
+  .alert-green{background:#0a1f14;border-left:3px solid var(--green);}
+  .alert-icon{font-size:1.1rem;flex-shrink:0;margin-top:.1rem;}
+  .alert-title{font-weight:700;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.25rem;}
+  .alert-red .alert-title{color:var(--red);}
+  .alert-amber .alert-title{color:var(--amber);}
+  .alert-green .alert-title{color:var(--green);}
+
+  /* ACCORDION */
+  .accordion{display:flex;flex-direction:column;gap:.5rem;}
+  .acc-item{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .acc-header{width:100%;background:none;border:none;text-align:left;padding:1rem 1.2rem;color:var(--white);font-weight:600;font-size:.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s;}
+  .acc-header:hover{background:rgba(76,175,80,.07);}
+  .acc-chevron{transition:transform .3s;color:var(--green2);}
+  .acc-item.open .acc-chevron{transform:rotate(90deg);}
+  .acc-body{display:none;padding:0 1.2rem 1rem;font-size:.9rem;}
+  .acc-item.open .acc-body{display:block;animation:fadeIn .2s;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+  /* DIAGRAM */
+  .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow:hidden;}
+  .diagram-wrap svg{max-width:100%;}
+
+  /* TABS */
+  .tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;}
+  .tab-btn{flex:1;background:transparent;border:none;color:var(--text2);padding:.9rem 1rem;font-size:.82rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s;border-right:1px solid var(--border);}
+  .tab-btn:last-child{border-right:none;}
+  .tab-btn.active{background:var(--green);color:#000;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;animation:fadeIn .3s;}
+
+  /* STEP PILLS */
+  .step-pill{display:flex;align-items:center;gap:.5rem;background:var(--card);border:2px solid var(--border);border-radius:30px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;transition:all .3s;color:var(--text2);}
+  .step-pill .num{width:24px;height:24px;border-radius:50%;background:var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0;transition:all .3s;}
+  .step-pill.active{border-color:var(--amber);color:var(--amber);}
+  .step-pill.active .num{background:var(--amber);color:#000;}
+  .step-pill.done{border-color:var(--green);color:var(--green2);}
+  .step-pill.done .num{background:var(--green);color:#fff;}
+
+  /* CHECKLIST */
+  .checklist{display:flex;flex-direction:column;gap:.5rem;}
+  .cl-item{display:flex;align-items:flex-start;gap:.9rem;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;cursor:pointer;transition:border-color .2s,background .2s;user-select:none;}
+  .cl-item.checked{border-color:var(--green);background:#0a1f14;}
+  .cl-check{width:20px;height:20px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:.1rem;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s;}
+  .cl-item.checked .cl-check{background:var(--green);border-color:var(--green);color:#fff;}
+  .cl-text{font-size:.9rem;}
+  .cl-item.checked .cl-text{color:var(--text2);text-decoration:line-through;}
+  .cl-group-label{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--green2);margin:1.2rem 0 .5rem;}
+  .cl-progress-bar{height:5px;background:var(--border);border-radius:3px;margin:.8rem 0;overflow:hidden;}
+  .cl-progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s;}
+
+  /* ANIM BTN */
+  .anim-btn{background:var(--green);color:#000;border:none;padding:.6rem 1.5rem;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;cursor:pointer;margin-top:1rem;transition:background .2s;}
+  .anim-btn:hover{background:var(--green2);}
+  .anim-btn:disabled{opacity:.4;cursor:default;background:var(--green);}
+
+  /* QUIZ */
+  .quiz-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.8rem;}
+  .quiz-q{font-size:1rem;font-weight:600;color:var(--white);margin-bottom:1.2rem;}
+  .quiz-q .q-num{color:var(--green2);font-size:.8rem;letter-spacing:.1em;display:block;margin-bottom:.3rem;text-transform:uppercase;}
+  .quiz-options{display:flex;flex-direction:column;gap:.6rem;}
+  .quiz-opt{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;cursor:pointer;text-align:left;color:var(--text);font-size:.9rem;transition:border-color .2s,background .2s;width:100%;}
+  .quiz-opt:hover:not(:disabled){border-color:var(--green2);background:#1e2e18;}
+  .quiz-opt.correct{border-color:var(--green);background:#0f2212;color:var(--green2);}
+  .quiz-opt.wrong{border-color:var(--red);background:#2a1010;color:#ff8a80;}
+  .quiz-feedback{margin-top:1rem;padding:.8rem 1rem;border-radius:6px;font-size:.88rem;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.ok{background:#0f2212;border-left:3px solid var(--green);color:var(--green2);}
+  .quiz-feedback.ko{background:#2a1010;border-left:3px solid var(--red);color:#ff8a80;}
+  .quiz-nav{display:flex;justify-content:flex-end;margin-top:1.2rem;}
+  .quiz-nav button{background:var(--green);color:#000;border:none;padding:.6rem 1.4rem;font-size:.82rem;font-weight:700;border-radius:4px;cursor:pointer;transition:background .2s;letter-spacing:.06em;text-transform:uppercase;}
+  .quiz-nav button:hover{background:var(--green2);}
+  .quiz-nav button:disabled{opacity:.3;cursor:default;}
+  .quiz-pips{display:flex;gap:.3rem;margin-bottom:1.5rem;}
+  .quiz-pip{flex:1;height:4px;background:var(--border);border-radius:2px;transition:background .3s;}
+  .quiz-pip.done{background:var(--green);}
+  .quiz-pip.active{background:var(--amber);}
+  .quiz-score{text-align:center;padding:2rem;}
+  .quiz-score .score-num{font-size:3.5rem;font-weight:800;color:var(--green2);}
+
+  /* EFFECTIF SELECTOR */
+  .effectif-btns{display:flex;gap:.7rem;flex-wrap:wrap;margin:1rem 0;}
+  .eff-btn{background:var(--bg3);border:2px solid var(--border);color:var(--text2);padding:.7rem 1.4rem;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s;}
+  .eff-btn:hover{border-color:var(--green2);color:var(--green2);}
+  .eff-btn.active{background:var(--green);border-color:var(--green2);color:#000;}
+  .eff-result{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-top:1rem;display:none;animation:fadeIn .3s;}
+  .eff-result.show{display:block;}
+  .eff-badge{display:inline-block;font-size:1.8rem;font-weight:900;padding:.4rem 1.2rem;border-radius:6px;margin-bottom:.8rem;}
+  .eff-carre{background:#0f2212;color:var(--green2);border:2px solid var(--green);}
+  .eff-triangle{background:#1f1800;color:var(--amber);border:2px solid var(--amber);}
+  .eff-nogo{background:#200e0e;color:var(--red);border:2px solid var(--red);}
+  .eff-plus{background:#0d1a38;color:#5b8ff9;border:2px solid #3d6bce;}
+
+  /* GO / NO-GO */
+  .gonogo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem;margin:1.5rem 0;}
+  .gonogo-item{display:flex;align-items:center;gap:.8rem;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;cursor:pointer;user-select:none;transition:all .2s;}
+  .gonogo-item.danger{border-color:var(--red);background:#200e0e;}
+  .gonogo-toggle{width:36px;height:20px;border-radius:10px;background:var(--border);position:relative;flex-shrink:0;transition:background .3s;cursor:pointer;}
+  .gonogo-toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .3s;}
+  .gonogo-item.danger .gonogo-toggle{background:var(--red);}
+  .gonogo-item.danger .gonogo-toggle::after{transform:translateX(16px);}
+  .gonogo-label{font-size:.88rem;font-weight:500;}
+  .gonogo-item.danger .gonogo-label{color:var(--red);}
+  .gonogo-verdict{padding:1.2rem 1.5rem;border-radius:8px;text-align:center;margin-top:1rem;font-size:1rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:all .3s;}
+  .verdict-go{background:#0a1f14;border:2px solid var(--green);color:var(--green2);}
+  .verdict-nogo{background:#200e0e;border:2px solid var(--red);color:var(--red);animation:pulse-red 1.5s infinite;}
+
+  /* COMPARATIF TABLE */
+  .compare-table{width:100%;border-collapse:collapse;margin-top:1.5rem;}
+  .compare-table th,.compare-table td{padding:.8rem 1rem;border:1px solid var(--border);font-size:.88rem;text-align:left;vertical-align:top;}
+  .compare-table th{background:var(--bg3);color:var(--green2);font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;}
+  .compare-table tr:nth-child(even) td{background:var(--bg3);}
+  .compare-table .ok{color:var(--green2);}
+  .compare-table .ko{color:var(--red);}
+  .compare-table .moy{color:var(--amber);}
+
+  /* SIMULATEUR */
+  #sim-canvas-wrap{position:relative;display:inline-block;}
+  #sim-canvas{cursor:crosshair;border-radius:8px;}
+  .sim-toolbar{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+  .sim-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:.5rem 1rem;border-radius:4px;cursor:pointer;font-size:.8rem;transition:all .2s;}
+  .sim-btn:hover{border-color:var(--green2);color:var(--green2);}
+  .sim-btn.active{background:var(--green);color:#000;border-color:var(--green2);font-weight:700;}
+  #sim-verdict{margin-top:.8rem;font-size:.9rem;min-height:1.5em;font-weight:600;}
+
+  /* FOOTER */
+  footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:.78rem;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- DISCLAIMER -->
+<div id="disclaimer-overlay">
+  <div class="disclaimer-box">
+    <div class="cls-label">⚠ Document Classifié — Accès Restreint</div>
+    <h2>Avertissement Légal</h2>
+    <p>Par l'accès à ce document, vous confirmez que vous êtes un agent habilité des <strong>Forces Armées de Cayo Perico</strong> dans l'exercice régulier de vos fonctions.</p>
+    <p>Vous vous engagez à ne pas dupliquer, copier ou reproduire ce document. Tout accès confié à une personne ne faisant pas partie de l'armée est exposé à des sanctions.</p>
+    <button id="confirm-btn" onclick="document.getElementById('disclaimer-overlay').style.display='none'">Je confirme mon identité — Accéder</button>
+    <p style="font-size:.75rem;color:var(--text2);margin-top:1.5rem">Réalisé par 06</p>
+  </div>
+</div>
+
+<div id="progress-bar"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="13" stroke="#6fcf4a" stroke-width="1.8"/>
+      <path d="M6 14h16M14 6v16" stroke="#6fcf4a" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="3" fill="#6fcf4a"/>
+    </svg>
+    Milica — Z.A
+  </div>
+  <nav>
+    <a href="#pourquoi">Pourquoi</a>
+    <a href="#regles">Règles</a>
+    <a href="#formations">Formations</a>
+    <a href="#decrochage">Décrochage</a>
+    <a href="#effectif">Effectif</a>
+    <a href="#simulateur">Simulateur</a>
+    <a href="#comparatif">Comparatif</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#checklist">Checklist</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="cls-badge">⚠ Document Classifié — Milica</div>
+  <h1>Sécurisation<br><span>Zone d'Atterrissage</span></h1>
+  <p>Procédures de sécurisation d'une Z.A — formations carré et triangle, règles d'engagement, décrochage ordonné et conditions opérationnelles.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">🔲 Formation Carré</span>
+    <span class="hero-badge">🔺 Formation Triangle</span>
+    <span class="hero-badge">✈️ Armée de l'Air</span>
+    <span class="hero-badge">🎯 Opérationnel</span>
+  </div>
+  <div class="scroll-hint">
+    <span>Défiler</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- 01 POURQUOI -->
+<section id="pourquoi">
+  <div class="container">
+    <div class="section-label">01 — Contexte</div>
+    <h2>Pourquoi sécuriser une Zone d'Atterrissage ?</h2>
+    <p>Une zone d'atterrissage est une <strong>zone à hauts risques</strong> dès lors qu'un appareil est en approche ou en départ. L'influence des rotors, la visibilité réduite du pilote au sol, et la présence potentielle de civils non avertis créent des conditions dangereuses que seule une sécurisation organisée peut neutraliser.</p>
+    <p>Cette procédure s'applique autant en opération militaire qu'en dehors. Elle doit être <strong>connue par cœur</strong> par chaque militaire de l'unité terrestre.</p>
+
+    <div class="card-grid cols-3" style="margin:2rem 0">
+      <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Formations</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Max — Formation Carré</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Min — Formation Triangle</div></div>
+    </div>
+
+    <div class="diagram-wrap">
+      <h3 style="text-align:left;margin-bottom:1rem">Vue d'ensemble — ZA sécurisée (animation)</h3>
+      <svg width="580" height="260" viewBox="0 0 580 260">
+        <rect width="580" height="260" fill="#0d0f0e"/>
+        <rect x="0" y="200" width="580" height="60" fill="#111"/>
+        <circle cx="290" cy="170" r="68" fill="none" stroke="#4caf50" stroke-width="2" stroke-dasharray="10,6" opacity=".6"/>
+        <circle cx="290" cy="170" r="4" fill="#4caf50"/>
+        <text x="290" y="142" text-anchor="middle" fill="#4caf50" font-size="26" font-weight="900" opacity=".35">H</text>
+        <text x="290" y="188" text-anchor="middle" fill="#4caf50" font-size="8" letter-spacing="3" opacity=".5">ZONE D'ATTERRISSAGE</text>
+        <!-- Helicopter animated -->
+        <g style="animation:heliFloat 3s ease-in-out infinite alternate">
+          <ellipse cx="290" cy="58" rx="22" ry="10" fill="#2e3d20" stroke="#6fcf4a" stroke-width="1.5"/>
+          <line x1="255" y1="50" x2="325" y2="50" stroke="#6fcf4a" stroke-width="2.5" style="animation:rotorSpin 0.3s linear infinite;transform-origin:290px 50px"/>
+          <line x1="322" y1="58" x2="344" y2="66" stroke="#6fcf4a" stroke-width="2"/>
+          <ellipse cx="349" cy="67" rx="7" ry="3" fill="none" stroke="#6fcf4a" stroke-width="1.2"/>
+          <line x1="283" y1="68" x2="283" y2="75" stroke="#6fcf4a" stroke-width="1.5"/>
+          <line x1="297" y1="68" x2="297" y2="75" stroke="#6fcf4a" stroke-width="1.5"/>
+          <line x1="276" y1="75" x2="290" y2="75" stroke="#6fcf4a" stroke-width="1.5"/>
+          <line x1="290" y1="75" x2="304" y2="75" stroke="#6fcf4a" stroke-width="1.5"/>
+        </g>
+        <!-- 4 soldiers -->
+        <circle cx="205" cy="162" r="11" fill="#4caf50"/><text x="205" y="166" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">1</text>
+        <circle cx="375" cy="162" r="11" fill="#4caf50"/><text x="375" y="166" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">2</text>
+        <circle cx="222" cy="208" r="11" fill="#4caf50"/><text x="222" y="212" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">3</text>
+        <circle cx="358" cy="208" r="11" fill="#4caf50"/><text x="358" y="212" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">4</text>
+        <!-- Coverage lines -->
+        <path d="M205 151 Q247 120 290 115 Q333 120 375 151" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="4,3" opacity=".35"/>
+        <path d="M222 219 Q255 245 290 250 Q325 245 358 219" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="4,3" opacity=".35"/>
+        <!-- No vehicle -->
+        <rect x="480" y="8" width="92" height="46" fill="#200e0e" stroke="#d93025" stroke-width="1.5" rx="6"/>
+        <text x="526" y="28" text-anchor="middle" fill="#d93025" font-size="11" font-weight="bold">🚗 INTERDIT</text>
+        <text x="526" y="44" text-anchor="middle" fill="#d93025" font-size="9">dans / autour ZA</text>
+      </svg>
+      <style>
+        @keyframes heliFloat{0%{transform:translateY(0)}100%{transform:translateY(28px)}}
+        @keyframes rotorSpin{to{transform:rotate(360deg);transform-origin:290px 50px}}
+      </style>
+    </div>
+
+    <div class="card-grid cols-2" style="margin-top:1.5rem">
+      <div class="alert alert-amber" style="margin:0">
+        <div class="alert-icon">⚡</div>
+        <div><div class="alert-title">Risque pilote</div>Le pilote doit être maître de son appareil. Il ne peut aucunement anticiper une erreur d'un civil qui s'approcherait de la ZA sans escorte.</div>
+      </div>
+      <div class="alert alert-green" style="margin:0">
+        <div class="alert-icon">ℹ️</div>
+        <div><div class="alert-title">Application universelle</div>Cette procédure s'applique aussi bien en opération militaire que dans toute autre circonstance nécessitant un atterrissage.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 RÈGLES -->
+<section id="regles">
+  <div class="container">
+    <div class="section-label">02 — Règles</div>
+    <h2>Règles fondamentales sur une Z.A</h2>
+    <p>Ces règles sont <strong>non négociables</strong>. Elles garantissent la sécurité du pilote, de l'équipage et de tous les militaires présents.</p>
+
+    <div class="accordion" style="margin-top:1.5rem">
+      <div class="acc-item open">
+        <button class="acc-header" onclick="toggleAcc(this)"><span>🚗 Aucun véhicule dans ou autour de la ZA</span><span class="acc-chevron">›</span></button>
+        <div class="acc-body">Aucun véhicule ne doit être garé à côté ni à l'intérieur de la ZA. <strong>La ZA n'est pas un parking.</strong> Un véhicule mal positionné est un danger direct pour l'appareil à l'atterrissage et au décollage. Cela vaut même si l'appareil n'est pas en vol au moment T.</div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)"><span>🪪 Zone réservée au personnel habilité</span><span class="acc-chevron">›</span></button>
+        <div class="acc-body">Seuls les membres de l'Armée de l'Air et les civils escortés par un militaire peuvent accéder à la ZA. Tout civil non escorté doit être éloigné immédiatement. Les militaires terrestres en position sont responsables du contrôle du périmètre.</div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)"><span>📍 Une ZA peut être créée partout, à tout moment</span><span class="acc-chevron">›</span></button>
+        <div class="acc-body">En opération, une Zone d'Atterrissage peut être improvisée à tout moment selon les besoins tactiques. Chaque militaire doit être capable de sécuriser une ZA avec les effectifs disponibles — triangle si 3 hommes, carré si 4 ou plus.</div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)"><span>🔲🔺 Placement en carré ou triangle obligatoire</span><span class="acc-chevron">›</span></button>
+        <div class="acc-body">Un placement en carré (4 militaires) ou en triangle (3 militaires) autour de la ZA est <strong>primordial</strong> en opération. Ce positionnement assure une couverture complète du périmètre et maintient les civils à l'écart. Aucune autre formation n'est autorisée.</div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-header" onclick="toggleAcc(this)"><span>✈️ Respecter le travail de l'Armée de l'Air</span><span class="acc-chevron">›</span></button>
+        <div class="acc-body">La ZA doit être libre pour faciliter l'atterrissage et le décollage. En cas de décollage d'urgence pour une opération militaire, tout obstacle dans la ZA compromet la mission et met en danger les pilotes et les militaires au sol. <strong>Ne pas garer de véhicule personnel ou de fonction dans cette zone.</strong></div>
+      </div>
+    </div>
+
+    <div class="alert alert-red" style="margin-top:1.5rem">
+      <div class="alert-icon">🚨</div>
+      <div><div class="alert-title">Rappel critique</div>Il vous est formellement demandé de ne plus vous garer dans cette zone — véhicule de fonction ou personnel. En cas de décollage d'urgence, cela n'est efficace ni pour vous, ni pour l'Armée de l'Air.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 FORMATIONS -->
+<section id="formations">
+  <div class="container">
+    <div class="section-label">03 — Positionnement</div>
+    <h2>Formations autour de la Z.A</h2>
+    <p>Deux formations selon l'effectif. Dans les deux cas, le périmètre doit être maintenu <strong>jusqu'au signal de décrochage</strong> — chaque militaire fait face vers l'extérieur.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-carre')">🔲 Carré — 4 militaires</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-triangle')">🔺 Triangle — 3 militaires</button>
+    </div>
+
+    <!-- CARRÉ -->
+    <div id="tab-carre" class="tab-content active">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start" class="split-2">
+        <div>
+          <h3>Formation Carré</h3>
+          <p style="font-size:.9rem">Formation standard avec 4 militaires. Le carré est représenté en <strong style="color:var(--red)">rouge</strong> sur les schémas. Couverture angulaire optimale à 360°.</p>
+          <div class="card" style="margin-top:1rem">
+            <div style="display:flex;flex-direction:column;gap:.7rem;font-size:.88rem">
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">1</div><span>Position <strong>Nord-Ouest</strong> — angle avant gauche</span></div>
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">2</div><span>Position <strong>Nord-Est</strong> — angle avant droit</span></div>
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">3</div><span>Position <strong>Sud-Ouest</strong> — angle arrière gauche</span></div>
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">4</div><span>Position <strong>Sud-Est</strong> — angle arrière droit</span></div>
+            </div>
+          </div>
+          <div class="alert alert-amber" style="margin-top:1rem"><div class="alert-icon">📐</div><div><div class="alert-title">Orientation</div>Chaque militaire fait face vers l'extérieur du périmètre, pas vers la ZA. L'espacement doit être régulier pour couvrir 360° sans angles morts.</div></div>
+        </div>
+        <div class="diagram-wrap" style="margin:0">
+          <h3 style="text-align:left;margin-bottom:.8rem;font-size:.9rem">Vue de dessus — Carré</h3>
+          <svg width="300" height="290" viewBox="0 0 300 290">
+            <rect width="300" height="290" fill="#0d0f0e"/>
+            <circle cx="150" cy="145" r="72" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="8,5" opacity=".5"/>
+            <circle cx="150" cy="145" r="4" fill="#4caf50"/>
+            <text x="150" y="114" text-anchor="middle" fill="#4caf50" font-size="20" font-weight="900" opacity=".25">H</text>
+            <text x="150" y="158" text-anchor="middle" fill="#4caf50" font-size="8" letter-spacing="2" opacity=".5">ZA</text>
+            <!-- Square outline -->
+            <rect x="68" y="58" width="164" height="164" fill="none" stroke="#d93025" stroke-width="1.5" stroke-dasharray="5,3" rx="3"/>
+            <!-- Soldiers -->
+            <circle cx="68" cy="58" r="13" fill="#4caf50"/><text x="68" y="62" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">1</text>
+            <circle cx="232" cy="58" r="13" fill="#4caf50"/><text x="232" y="62" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">2</text>
+            <circle cx="68" cy="222" r="13" fill="#4caf50"/><text x="68" y="226" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">3</text>
+            <circle cx="232" cy="222" r="13" fill="#4caf50"/><text x="232" y="226" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">4</text>
+            <!-- Outward arrows -->
+            <path d="M68 45 L68 30" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao1)"/>
+            <path d="M232 45 L232 30" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao1)"/>
+            <path d="M68 235 L68 256" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao1)"/>
+            <path d="M232 235 L232 256" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao1)"/>
+            <defs>
+              <marker id="ao1" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4caf50"/></marker>
+              <marker id="ao2" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4caf50"/></marker>
+              <marker id="ao3" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f5a623"/></marker>
+            </defs>
+            <text x="8" y="280" fill="#d93025" font-size="8">▪ Périmètre rouge = carré</text>
+            <text x="8" y="292" fill="#4caf50" font-size="8">▪ Flèches = orientation (vers ext.)</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRIANGLE -->
+    <div id="tab-triangle" class="tab-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start" class="split-2">
+        <div>
+          <h3>Formation Triangle</h3>
+          <p style="font-size:.9rem">Formation avec 3 militaires minimum. Représenté en <strong style="color:var(--green2)">vert</strong>. Couverture légèrement réduite mais toujours efficace.</p>
+          <div class="card" style="margin-top:1rem">
+            <div style="display:flex;flex-direction:column;gap:.7rem;font-size:.88rem">
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">1</div><span>Position <strong>Nord</strong> — pointe avant, face à l'arrivée de l'appareil</span></div>
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">2</div><span>Position <strong>Sud-Ouest</strong> — angle arrière gauche</span></div>
+              <div style="display:flex;gap:.7rem;align-items:center"><div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">3</div><span>Position <strong>Sud-Est</strong> — angle arrière droit</span></div>
+            </div>
+          </div>
+          <div class="alert alert-green" style="margin-top:1rem"><div class="alert-icon">✅</div><div><div class="alert-title">Adaptation</div>Le triangle reste efficace avec 3 hommes. Même règle : face vers l'extérieur, périmètre tenu jusqu'au décrochage ordonné.</div></div>
+        </div>
+        <div class="diagram-wrap" style="margin:0">
+          <h3 style="text-align:left;margin-bottom:.8rem;font-size:.9rem">Vue de dessus — Triangle</h3>
+          <svg width="300" height="290" viewBox="0 0 300 290">
+            <rect width="300" height="290" fill="#0d0f0e"/>
+            <circle cx="150" cy="155" r="72" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="8,5" opacity=".5"/>
+            <circle cx="150" cy="155" r="4" fill="#4caf50"/>
+            <text x="150" y="124" text-anchor="middle" fill="#4caf50" font-size="20" font-weight="900" opacity=".25">H</text>
+            <text x="150" y="168" text-anchor="middle" fill="#4caf50" font-size="8" letter-spacing="2" opacity=".5">ZA</text>
+            <!-- Triangle outline -->
+            <polygon points="150,50 62,240 238,240" fill="none" stroke="#6fcf4a" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <!-- Soldiers -->
+            <circle cx="150" cy="50" r="13" fill="#4caf50"/><text x="150" y="54" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">1</text>
+            <circle cx="62" cy="240" r="13" fill="#4caf50"/><text x="62" y="244" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">2</text>
+            <circle cx="238" cy="240" r="13" fill="#4caf50"/><text x="238" y="244" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">3</text>
+            <!-- Outward arrows -->
+            <path d="M150 37 L150 20" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao2)"/>
+            <path d="M52 248 L38 262" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao2)"/>
+            <path d="M248 248 L262 262" stroke="#4caf50" stroke-width="1.5" marker-end="url(#ao2)"/>
+            <text x="8" y="282" fill="#6fcf4a" font-size="8">▪ Périmètre vert = triangle</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 DÉCROCHAGE -->
+<section id="decrochage">
+  <div class="container">
+    <div class="section-label">04 — Procédure de départ</div>
+    <h2>Procédure de décrochage</h2>
+    <p>Quand vous êtes sur le point de quitter la ZA, une règle <strong>stricte et impérative</strong> s'applique pour les deux formations. L'ordre de départ va toujours du numéro 1 au dernier.</p>
+
+    <div class="alert alert-red">
+      <div class="alert-icon">🚨</div>
+      <div><div class="alert-title">Règle primordiale</div>Cette règle est <strong>primordiale</strong>. Un décrochage désordonné crée des angles non couverts et met en danger le pilote. On ne quitte sa position qu'au signal, dans l'ordre.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem" class="split-2">
+      <div class="card">
+        <h3 style="color:var(--red);margin-bottom:1rem">🔲 Carré — Ordre de décrochage</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div class="step-pill active" id="dc1"><div class="num">1</div>Le N°1 rejoint en premier</div>
+          <div class="step-pill" id="dc2"><div class="num">2</div>Suivi du N°2</div>
+          <div class="step-pill" id="dc3"><div class="num">3</div>Suivi du N°3</div>
+          <div class="step-pill" id="dc4"><div class="num">4</div>Pour terminer, suivi du N°4</div>
+        </div>
+        <button class="anim-btn" id="btn-carre" onclick="animDecrochage('carre')">▶ Animer le décrochage</button>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--green2);margin-bottom:1rem">🔺 Triangle — Ordre de décrochage</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div class="step-pill active" id="dt1"><div class="num">1</div>Le N°1 rejoint en premier</div>
+          <div class="step-pill" id="dt2"><div class="num">2</div>Suivi du N°2</div>
+          <div class="step-pill" id="dt3"><div class="num">3</div>Pour finir, suivi du N°3</div>
+        </div>
+        <button class="anim-btn" id="btn-triangle" onclick="animDecrochage('triangle')">▶ Animer le décrochage</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 05 EFFECTIF -->
+<section id="effectif">
+  <div class="container">
+    <div class="section-label">05 — Sélecteur</div>
+    <h2>Quelle formation pour mon effectif ?</h2>
+    <p>Indiquez le nombre de militaires disponibles et le système vous recommande automatiquement la formation à adopter avec le schéma correspondant.</p>
+    <div class="effectif-btns">
+      <button class="eff-btn" onclick="selectEff(this,1)">1 militaire</button>
+      <button class="eff-btn" onclick="selectEff(this,2)">2 militaires</button>
+      <button class="eff-btn" onclick="selectEff(this,3)">3 militaires</button>
+      <button class="eff-btn" onclick="selectEff(this,4)">4 militaires</button>
+      <button class="eff-btn" onclick="selectEff(this,5)">5+ militaires</button>
+    </div>
+    <div class="eff-result" id="eff-result"></div>
+  </div>
+</section>
+
+<!-- 06 SIMULATEUR -->
+<section id="simulateur">
+  <div class="container">
+    <div class="section-label">06 — Simulation</div>
+    <h2>Simulateur de placement</h2>
+    <p>Placez vos militaires autour de la ZA en cliquant sur la carte. Le système analyse votre formation et vous indique si elle est correcte.</p>
+    <div class="sim-toolbar">
+      <button class="sim-btn active" id="sim-mode-place" onclick="simSetMode('place')">📍 Placer soldats</button>
+      <button class="sim-btn" id="sim-mode-erase" onclick="simSetMode('erase')">🗑️ Effacer</button>
+      <button class="sim-btn" onclick="simReset()">↺ Reset</button>
+      <button class="sim-btn" onclick="simCheck()" style="background:var(--green);color:#000;border-color:var(--green2);font-weight:700">✔ Valider formation</button>
+    </div>
+    <div class="diagram-wrap" style="padding:1rem">
+      <canvas id="sim-canvas" width="560" height="340" style="border-radius:6px;max-width:100%"></canvas>
+    </div>
+    <div id="sim-verdict" style="color:var(--text2)">Placez 3 ou 4 soldats autour de la ZA puis cliquez "Valider formation".</div>
+  </div>
+</section>
+
+<!-- 08 COMPARATIF -->
+<section id="comparatif">
+  <div class="container">
+    <div class="section-label">07 — Analyse</div>
+    <h2>Comparatif Carré vs Triangle</h2>
+    <p>Vue côte à côte des deux formations avec leurs avantages, inconvénients et caractéristiques opérationnelles.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0" class="split-2">
+      <!-- Carré animated -->
+      <div class="diagram-wrap" style="margin:0">
+        <h3 style="text-align:left;margin-bottom:.5rem;font-size:.9rem;color:var(--red)">🔲 Formation Carré</h3>
+        <svg id="comp-carre" width="240" height="220" viewBox="0 0 240 220">
+          <rect width="240" height="220" fill="#0d0f0e"/>
+          <circle cx="120" cy="110" r="55" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="6,4" opacity=".5"/>
+          <text x="120" y="118" text-anchor="middle" fill="#4caf50" font-size="16" font-weight="900" opacity=".3">H</text>
+          <rect x="60" y="42" width="120" height="120" fill="none" stroke="#d93025" stroke-width="1.5" stroke-dasharray="5,3" rx="2"/>
+          <circle class="comp-dot" cx="60" cy="42" r="11" fill="#4caf50"/><text x="60" y="46" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">1</text>
+          <circle class="comp-dot" cx="180" cy="42" r="11" fill="#4caf50"/><text x="180" y="46" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">2</text>
+          <circle class="comp-dot" cx="60" cy="162" r="11" fill="#4caf50"/><text x="60" y="166" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">3</text>
+          <circle class="comp-dot" cx="180" cy="162" r="11" fill="#4caf50"/><text x="180" y="166" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">4</text>
+          <!-- Coverage arcs -->
+          <path d="M60 31 L60 18" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co1)"/>
+          <path d="M180 31 L180 18" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co1)"/>
+          <path d="M60 173 L60 200" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co1)"/>
+          <path d="M180 173 L180 200" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co1)"/>
+          <defs>
+            <marker id="co1" markerWidth="6" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5 z" fill="#4caf50"/></marker>
+            <marker id="co2" markerWidth="6" markerHeight="5" refX="3" refY="2.5" orient="auto"><path d="M0,0 L0,5 L6,2.5 z" fill="#4caf50"/></marker>
+          </defs>
+          <text x="120" y="212" text-anchor="middle" fill="#d93025" font-size="9">4 positions — couverture 360°</text>
+        </svg>
+      </div>
+      <!-- Triangle animated -->
+      <div class="diagram-wrap" style="margin:0">
+        <h3 style="text-align:left;margin-bottom:.5rem;font-size:.9rem;color:var(--green2)">🔺 Formation Triangle</h3>
+        <svg id="comp-triangle" width="240" height="220" viewBox="0 0 240 220">
+          <rect width="240" height="220" fill="#0d0f0e"/>
+          <circle cx="120" cy="120" r="55" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="6,4" opacity=".5"/>
+          <text x="120" y="128" text-anchor="middle" fill="#4caf50" font-size="16" font-weight="900" opacity=".3">H</text>
+          <polygon points="120,38 48,190 192,190" fill="none" stroke="#6fcf4a" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <circle cx="120" cy="38" r="11" fill="#4caf50"/><text x="120" y="42" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">1</text>
+          <circle cx="48" cy="190" r="11" fill="#4caf50"/><text x="48" y="194" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">2</text>
+          <circle cx="192" cy="190" r="11" fill="#4caf50"/><text x="192" y="194" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">3</text>
+          <path d="M120 27 L120 14" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co2)"/>
+          <path d="M40 196 L28 208" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co2)"/>
+          <path d="M200 196 L212 208" stroke="#4caf50" stroke-width="1.2" marker-end="url(#co2)"/>
+          <text x="120" y="212" text-anchor="middle" fill="#6fcf4a" font-size="9">3 positions — couverture ~300°</text>
+        </svg>
+      </div>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th>🔲 Carré</th>
+          <th>🔺 Triangle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Effectif requis</td><td>4 militaires</td><td>3 militaires</td></tr>
+        <tr><td>Couverture angulaire</td><td class="ok">360° (optimale)</td><td class="moy">~300° (bonne)</td></tr>
+        <tr><td>Angles morts</td><td class="ok">Aucun</td><td class="moy">Zone arrière légèrement réduite</td></tr>
+        <tr><td>Ordre de décrochage</td><td>1 → 2 → 3 → 4</td><td>1 → 2 → 3</td></tr>
+        <tr><td>Usage recommandé</td><td class="ok">Opération standard, effectif complet</td><td class="moy">Effectif réduit, ZA improvisée</td></tr>
+        <tr><td>Temps de mise en place</td><td class="moy">Plus long (4 positions)</td><td class="ok">Plus rapide (3 positions)</td></tr>
+        <tr><td>Flexibilité terrain</td><td class="moy">Nécessite espace régulier</td><td class="ok">S'adapte mieux à un terrain irrégulier</td></tr>
+        <tr><td>Priorité</td><td class="ok">Formation de référence</td><td class="moy">Formation de repli</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 09 QUIZ -->
+<section id="quiz">
+  <div class="container">
+    <div class="section-label">08 — Entraînement</div>
+    <h2>Quiz — Testez vos connaissances Z.A</h2>
+    <p>7 questions pour valider votre maîtrise des procédures de sécurisation de Zone d'Atterrissage.</p>
+    <div style="margin-top:2rem">
+      <div class="quiz-pips" id="quiz-pips"></div>
+      <div class="quiz-box" id="quiz-container"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 CHECKLIST -->
+<section id="checklist">
+  <div class="container">
+    <div class="section-label">09 — Opérationnel</div>
+    <h2>Checklist — Sécurisation Z.A</h2>
+    <p>Cochez chaque point avant et pendant la sécurisation. Tout doit être validé avant l'autorisation d'atterrissage.</p>
+    <div style="margin-top:1rem">
+      <div class="cl-progress-bar"><div class="cl-progress-fill" id="cl-fill" style="width:0%"></div></div>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:1.5rem" id="cl-count">0 / 14 points validés</p>
+    </div>
+
+    <div class="cl-group-label">📡 Avant l'atterrissage</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Zone identifiée, dégagée de tout obstacle</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Aucun véhicule dans ou autour de la ZA</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Conditions météo acceptables (pas de vent fort, visibilité correcte)</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Effectif compté — formation carré (4) ou triangle (3) choisie</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Numéros attribués à chaque militaire</div></div>
+    </div>
+
+    <div class="cl-group-label">🔒 Pendant la sécurisation</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Militaires en position autour du périmètre — face vers l'extérieur</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Aucun civil non escorté dans la zone</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Contact maintenu entre membres de la formation</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Coordination avec l'Armée de l'Air confirmée</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Aucun tir ou contact hostile dans le périmètre</div></div>
+    </div>
+
+    <div class="cl-group-label">🚀 Procédure de décrochage</div>
+    <div class="checklist">
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Signal de décrochage reçu du commandement</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Le N°1 quitte sa position en premier</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">N°2, N°3 (et N°4 si carré) suivent dans l'ordre strict</div></div>
+      <div class="cl-item" onclick="clCheck(this)"><div class="cl-check"></div><div class="cl-text">Aucun militaire ne quitte sa position avant son tour</div></div>
+    </div>
+
+    <button onclick="clReset()" style="margin-top:1.5rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:.6rem 1.2rem;border-radius:4px;cursor:pointer;font-size:.82rem;transition:all .2s" onmouseover="this.style.borderColor='var(--green2)'" onmouseout="this.style.borderColor='var(--border)'">↺ Réinitialiser</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Sécurisation Z.A — Zone d'Atterrissage · Milica · Document classifié — Usage interne uniquement</p>
+  <p style="margin-top:.4rem">Réalisé par 06 · <span id="year"></span></p>
+</footer>
+
+<script>
+// ── PROGRESS ──
+window.addEventListener('scroll',()=>{
+  const el=document.documentElement;
+  document.getElementById('progress-bar').style.width=(el.scrollTop/(el.scrollHeight-el.clientHeight)*100)+'%';
+});
+
+// ── ACCORDION ──
+function toggleAcc(btn){ btn.closest('.acc-item').classList.toggle('open'); }
+
+// ── TABS ──
+function switchTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── CHECKLIST ──
+const CL_TOTAL=14;
+function clCheck(el){
+  el.classList.toggle('checked');
+  el.querySelector('.cl-check').textContent=el.classList.contains('checked')?'✓':'';
+  const done=document.querySelectorAll('.cl-item.checked').length;
+  document.getElementById('cl-fill').style.width=(done/CL_TOTAL*100)+'%';
+  document.getElementById('cl-count').textContent=`${done} / ${CL_TOTAL} points validés`;
+}
+function clReset(){
+  document.querySelectorAll('.cl-item').forEach(el=>{el.classList.remove('checked');el.querySelector('.cl-check').textContent='';});
+  document.getElementById('cl-fill').style.width='0%';
+  document.getElementById('cl-count').textContent=`0 / ${CL_TOTAL} points validés`;
+}
+
+// ── DÉCROCHAGE ANIMATION ──
+// Chaque type a son propre flag pour éviter les conflits
+let decRunningCarre=false;
+let decRunningTriangle=false;
+
+function animDecrochage(type){
+  if(type==='carre'){
+    if(decRunningCarre)return;
+    decRunningCarre=true;
+    const btn=document.getElementById('btn-carre');
+    btn.disabled=true;
+    resetPills(['dc1','dc2','dc3','dc4']);
+    animSoldiersSeq(['ds1','ds2','ds3','ds4'],['dc1','dc2','dc3','dc4'],btn);
+  } else {
+    if(decRunningTriangle)return;
+    decRunningTriangle=true;
+    const btn=document.getElementById('btn-triangle');
+    btn.disabled=true;
+    resetPills(['dt1','dt2','dt3']);
+    animPillsSeq(['dt1','dt2','dt3'],btn);
+  }
+}
+
+function resetPills(ids){
+  ids.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('active','done');
+    if(i===0) el.classList.add('active');
+  });
+}
+
+function animSoldiersSeq(soldiers,pills,btn){
+  const origPos={ds1:[195,52],ds2:[345,52],ds3:[195,208],ds4:[345,208]};
+  soldiers.forEach(id=>{
+    const c=document.getElementById(id),t=document.getElementById(id+'t');
+    const [ox,oy]=origPos[id];
+    c.setAttribute('cx',ox);c.setAttribute('cy',oy);c.setAttribute('fill','#4caf50');
+    if(t){t.setAttribute('x',ox);t.setAttribute('y',oy+4);}
+  });
+
+  const tx=505,ty=120;
+  let idx=0;
+
+  function moveNext(){
+    if(idx>=soldiers.length){
+      document.getElementById('dec-status').textContent='✓ Décrochage terminé — Formation dissoute dans l\'ordre';
+      document.getElementById('dec-status').setAttribute('fill','#4caf50');
+      setTimeout(()=>{
+        btn.disabled=false;
+        decRunningCarre=false;
+        document.getElementById('dec-status').textContent='Cliquez "Animer le décrochage" pour voir la procédure';
+        document.getElementById('dec-status').setAttribute('fill','#8a9970');
+        soldiers.forEach(id=>{
+          const c=document.getElementById(id),t=document.getElementById(id+'t');
+          const [ox,oy]=origPos[id];
+          c.setAttribute('cx',ox);c.setAttribute('cy',oy);c.setAttribute('fill','#4caf50');
+          if(t){t.setAttribute('x',ox);t.setAttribute('y',oy+4);}
+        });
+        resetPills(pills);
+      },2000);
+      return;
+    }
+    if(idx>0){
+      document.getElementById(pills[idx-1]).classList.remove('active');
+      document.getElementById(pills[idx-1]).classList.add('done');
+    }
+    document.getElementById(pills[idx]).classList.add('active');
+    document.getElementById('dec-status').textContent=`Militaire N°${idx+1} en mouvement…`;
+    document.getElementById('dec-status').setAttribute('fill','#f5a623');
+
+    const sid=soldiers[idx];
+    const circ=document.getElementById(sid);
+    const txt=document.getElementById(sid+'t');
+    let cx=parseFloat(circ.getAttribute('cx'));
+    let cy=parseFloat(circ.getAttribute('cy'));
+    circ.setAttribute('fill','#f5a623');
+
+    const steps=55;
+    const dx=(tx-cx)/steps,dy=(ty-cy)/steps;
+    let s=0;
+    const iv=setInterval(()=>{
+      cx+=dx;cy+=dy;s++;
+      circ.setAttribute('cx',cx);circ.setAttribute('cy',cy);
+      if(txt){txt.setAttribute('x',cx);txt.setAttribute('y',cy+4);}
+      if(s>=steps){clearInterval(iv);circ.setAttribute('fill','#555');idx++;setTimeout(moveNext,350);}
+    },18);
+  }
+  moveNext();
+}
+
+function animPillsSeq(pills, btn){
+  // Vider tous les pills d'abord
+  pills.forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+  });
+
+  // Chaque pill s'active à son propre setTimeout — pas de récursion, pas d'interval
+  pills.forEach((id, i) => {
+    setTimeout(() => {
+      // Marquer le précédent comme done
+      if(i > 0){
+        const prev = document.getElementById(pills[i-1]);
+        prev.classList.remove('active');
+        prev.classList.add('done');
+      }
+      // Activer le courant
+      document.getElementById(id).classList.add('active');
+
+      // Dernier pill : le passer en done puis reset
+      if(i === pills.length - 1){
+        setTimeout(() => {
+          document.getElementById(id).classList.remove('active');
+          document.getElementById(id).classList.add('done');
+          setTimeout(() => {
+            btn.disabled = false;
+            decRunningTriangle = false;
+            resetPills(pills);
+          }, 800);
+        }, 900);
+      }
+    }, i * 900 + 200);
+  });
+}
+
+// ── EFFECTIF SELECTOR ──
+const EFF_DATA={
+  1:{badge:'eff-nogo',label:'✕ NO-GO',title:'Effectif insuffisant',text:'Un seul militaire ne peut pas sécuriser une ZA. Aucune formation n\'est possible. L\'atterrissage ne peut pas être autorisé — attendez des renforts.',svg:''},
+  2:{badge:'eff-nogo',label:'✕ NO-GO',title:'Effectif insuffisant',text:'Deux militaires sont insuffisants pour former un triangle ou un carré. La ZA ne peut pas être correctement sécurisée. Il faut au minimum 3 militaires.',svg:''},
+  3:{badge:'eff-triangle',label:'🔺 Triangle',title:'Formation Triangle recommandée',text:'Avec 3 militaires, adoptez la formation Triangle. Positionnez le N°1 au Nord (pointe avant), le N°2 au Sud-Ouest, le N°3 au Sud-Est. Décrochage : 1 → 2 → 3.',svg:'triangle'},
+  4:{badge:'eff-carre',label:'🔲 Carré',title:'Formation Carré recommandée',text:'Avec 4 militaires, adoptez la formation Carré. N°1 NW, N°2 NE, N°3 SW, N°4 SE. Couverture 360° optimale. Décrochage : 1 → 2 → 3 → 4.',svg:'carre'},
+  5:{badge:'eff-plus',label:'🔲+ Carré étendu',title:'Carré + militaire(s) supplémentaire(s)',text:'Avec 5 militaires ou plus, formez un Carré avec les 4 premiers. Le ou les militaires supplémentaires peuvent renforcer les angles les plus exposés ou couvrir un accès secondaire.',svg:'carre'}
+};
+function selectEff(btn,n){
+  document.querySelectorAll('.eff-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d=EFF_DATA[n];
+  const res=document.getElementById('eff-result');
+  res.innerHTML=`
+    <div class="eff-badge ${d.badge}">${d.label}</div>
+    <h3 style="margin-bottom:.5rem">${d.title}</h3>
+    <p style="font-size:.9rem;color:var(--text2)">${d.text}</p>
+    ${d.svg==='triangle'?`<svg width="200" height="170" viewBox="0 0 200 170" style="margin-top:1rem"><rect width="200" height="170" fill="transparent"/><polygon points="100,20 30,160 170,160" fill="none" stroke="#6fcf4a" stroke-width="1.5" stroke-dasharray="5,3"/><circle cx="100" cy="20" r="11" fill="#4caf50"/><text x="100" y="24" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">1</text><circle cx="30" cy="160" r="11" fill="#4caf50"/><text x="30" y="164" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">2</text><circle cx="170" cy="160" r="11" fill="#4caf50"/><text x="170" y="164" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">3</text></svg>`:''}
+    ${d.svg==='carre'?`<svg width="200" height="170" viewBox="0 0 200 170" style="margin-top:1rem"><rect width="200" height="170" fill="transparent"/><rect x="30" y="20" width="140" height="130" fill="none" stroke="#d93025" stroke-width="1.5" stroke-dasharray="5,3" rx="2"/><circle cx="30" cy="20" r="11" fill="#4caf50"/><text x="30" y="24" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">1</text><circle cx="170" cy="20" r="11" fill="#4caf50"/><text x="170" y="24" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">2</text><circle cx="30" cy="150" r="11" fill="#4caf50"/><text x="30" y="154" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">3</text><circle cx="170" cy="150" r="11" fill="#4caf50"/><text x="170" y="154" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">4</text></svg>`:''}
+  `;
+  res.classList.add('show');
+}
+
+// ── SIMULATEUR ──
+const simCanvas=document.getElementById('sim-canvas');
+const simCtx=simCanvas.getContext('2d');
+let simMode='place';
+let simSoldiers=[];
+const ZA_CX=280,ZA_CY=170,ZA_R=80;
+
+function simSetMode(m){
+  simMode=m;
+  document.getElementById('sim-mode-place').classList.toggle('active',m==='place');
+  document.getElementById('sim-mode-erase').classList.toggle('active',m==='erase');
+}
+
+function simDraw(){
+  const w=simCanvas.width,h=simCanvas.height;
+  simCtx.clearRect(0,0,w,h);
+  // background
+  simCtx.fillStyle='#0d0f0e';simCtx.fillRect(0,0,w,h);
+  // grid
+  simCtx.strokeStyle='#1a2012';simCtx.lineWidth=1;
+  for(let x=0;x<w;x+=40){simCtx.beginPath();simCtx.moveTo(x,0);simCtx.lineTo(x,h);simCtx.stroke();}
+  for(let y=0;y<h;y+=40){simCtx.beginPath();simCtx.moveTo(0,y);simCtx.lineTo(w,y);simCtx.stroke();}
+  // ZA circle
+  simCtx.strokeStyle='#4caf50';simCtx.lineWidth=2;simCtx.setLineDash([10,6]);
+  simCtx.beginPath();simCtx.arc(ZA_CX,ZA_CY,ZA_R,0,Math.PI*2);simCtx.stroke();
+  simCtx.setLineDash([]);
+  // H
+  simCtx.fillStyle='rgba(76,175,80,0.2)';simCtx.font='bold 40px sans-serif';simCtx.textAlign='center';
+  simCtx.fillText('H',ZA_CX,ZA_CY+14);
+  simCtx.fillStyle='#4caf50';simCtx.font='9px sans-serif';
+  simCtx.fillText('ZONE D\'ATTERRISSAGE',ZA_CX,ZA_CY+50);
+  // Center dot
+  simCtx.fillStyle='#4caf50';simCtx.beginPath();simCtx.arc(ZA_CX,ZA_CY,4,0,Math.PI*2);simCtx.fill();
+  // Soldiers
+  simSoldiers.forEach((s,i)=>{
+    simCtx.fillStyle=s.valid===false?'#d93025':'#4caf50';
+    simCtx.beginPath();simCtx.arc(s.x,s.y,14,0,Math.PI*2);simCtx.fill();
+    simCtx.fillStyle='#000';simCtx.font='bold 11px sans-serif';simCtx.textAlign='center';
+    simCtx.fillText(i+1,s.x,s.y+4);
+  });
+  // Count
+  simCtx.fillStyle='#8a9970';simCtx.font='11px sans-serif';simCtx.textAlign='left';
+  simCtx.fillText(`Soldats placés : ${simSoldiers.length} / 4`,10,20);
+  simCtx.fillText('Cliquez pour placer — Max 4',10,36);
+}
+
+simCanvas.addEventListener('click',function(e){
+  const rect=simCanvas.getBoundingClientRect();
+  const scaleX=simCanvas.width/rect.width;
+  const scaleY=simCanvas.height/rect.height;
+  const x=(e.clientX-rect.left)*scaleX;
+  const y=(e.clientY-rect.top)*scaleY;
+  if(simMode==='erase'){
+    const idx=simSoldiers.findIndex(s=>Math.hypot(s.x-x,s.y-y)<18);
+    if(idx>=0)simSoldiers.splice(idx,1);
+  } else {
+    if(simSoldiers.length>=4)return;
+    // Check not inside ZA
+    const distFromCenter=Math.hypot(x-ZA_CX,y-ZA_CY);
+    simSoldiers.push({x,y,insideZA:distFromCenter<ZA_R-10});
+  }
+  document.getElementById('sim-verdict').style.color='var(--text2)';
+  document.getElementById('sim-verdict').textContent=`${simSoldiers.length} soldat(s) placé(s). Cliquez "Valider formation" pour analyser.`;
+  simDraw();
+});
+
+function simReset(){
+  simSoldiers=[];
+  document.getElementById('sim-verdict').style.color='var(--text2)';
+  document.getElementById('sim-verdict').textContent='Placez 3 ou 4 soldats autour de la ZA puis cliquez "Valider formation".';
+  simDraw();
+}
+
+function simCheck(){
+  const n=simSoldiers.length;
+  const verdict=document.getElementById('sim-verdict');
+  if(n<3){verdict.style.color='var(--red)';verdict.textContent=`⛔ Effectif insuffisant (${n} soldat(s)). Minimum 3 requis pour sécuriser une ZA.`;simDraw();return;}
+  // Check if any inside ZA
+  const inside=simSoldiers.filter(s=>s.insideZA);
+  if(inside.length>0){
+    simSoldiers.forEach(s=>{s.valid=!s.insideZA;});
+    verdict.style.color='var(--red)';
+    verdict.textContent=`⚠ ${inside.length} soldat(s) trop proche(s) du centre de la ZA ! Les soldats doivent être positionnés sur le périmètre, pas à l'intérieur.`;
+    simDraw();return;
+  }
+  // Check spread around ZA
+  const angles=simSoldiers.map(s=>Math.atan2(s.y-ZA_CY,s.x-ZA_CX)*180/Math.PI);
+  angles.sort((a,b)=>a-b);
+  let maxGap=0;
+  for(let i=0;i<angles.length;i++){
+    const gap=i<angles.length-1?angles[i+1]-angles[i]:360-angles[angles.length-1]+angles[0];
+    if(gap>maxGap)maxGap=gap;
+  }
+  simSoldiers.forEach(s=>{s.valid=true;});
+  simDraw();
+  if(n===4&&maxGap<120){
+    verdict.style.color='var(--green2)';
+    verdict.textContent='✅ Excellent ! Formation Carré correcte — couverture 360° assurée. Périmètre bien distribué.';
+  } else if(n===3&&maxGap<160){
+    verdict.style.color='var(--green2)';
+    verdict.textContent='✅ Bien ! Formation Triangle correcte — couverture bien distribuée autour de la ZA.';
+  } else if(maxGap>160){
+    verdict.style.color='var(--amber)';
+    verdict.textContent=`⚠ Angle mort détecté (${Math.round(maxGap)}° non couvert). Redistribuez les soldats plus uniformément autour de la ZA.`;
+  } else {
+    verdict.style.color='var(--green2)';
+    verdict.textContent=`✅ Formation ${n===4?'Carré':'Triangle'} validée — bonne couverture du périmètre.`;
+  }
+}
+
+simDraw();
+
+// ── QUIZ ──
+const QUIZ=[
+  {q:'Combien de militaires faut-il minimum pour sécuriser une ZA ?',opts:['1 militaire','2 militaires','3 militaires','5 militaires'],ans:2,exp:'Il faut au minimum 3 militaires pour former un triangle. En dessous, aucune formation n\'est possible et la ZA ne peut pas être sécurisée.'},
+  {q:'Quelle formation adopte-t-on avec 4 militaires ?',opts:['Triangle','Losange','Carré','Colonne'],ans:2,exp:'Avec 4 militaires, on adopte la formation Carré (représentée en rouge). Elle offre une couverture angulaire de 360° sans angle mort.'},
+  {q:'Dans quel sens les militaires font-ils face en position ?',opts:['Vers l\'intérieur, face à la ZA','Vers l\'extérieur, dos à la ZA','Alternativement intérieur/extérieur','Dans la direction du vent'],ans:1,exp:'Chaque militaire fait face vers l\'extérieur du périmètre pour surveiller les abords de la ZA, pas vers le centre.'},
+  {q:'Lors d\'un décrochage du carré, qui part en dernier ?',opts:['Le N°1','Le N°2','Le N°3','Le N°4'],ans:3,exp:'L\'ordre de décrochage du carré est strict : 1 → 2 → 3 → 4. Le N°4 est toujours le dernier à quitter sa position.'},
+  {q:'Peut-on garer un véhicule personnel à côté de la ZA ?',opts:['Oui, si l\'hélicoptère n\'est pas là','Oui, loin du centre','Non, jamais — ni dans ni autour de la ZA','Uniquement les véhicules de fonction'],ans:2,exp:'Aucun véhicule ne doit être garé dans ou autour de la ZA — qu\'il soit personnel ou de fonction. La ZA n\'est pas un parking.'},
+  {q:'Une ZA peut-elle être créée en dehors d\'une base fixe ?',opts:['Non, uniquement sur des bases officielles','Oui, à tout moment et en tout lieu en opération','Seulement si l\'Armée de l\'Air le demande 48h à l\'avance','Non, elle nécessite des marquages au sol'],ans:1,exp:'Une ZA peut être créée à tout moment en opération et en tous lieux selon les besoins tactiques. Chaque militaire doit être capable de l\'improviser.'},
+  {q:'Quel est le principal risque d\'un obstacle dans la ZA lors d\'un décollage d\'urgence ?',opts:['Un retard administratif','Une collision ou un accident compromettant la mission et la sécurité','Une amende pour le propriétaire du véhicule','Rien de particulier si l\'appareil est petit'],ans:1,exp:'Un obstacle dans la ZA lors d\'un décollage d\'urgence peut provoquer une collision, compromettre la mission militaire et mettre en danger le pilote comme les soldats au sol.'}
+];
+
+let qIdx=0,qScore=0,qAnswered=false;
+
+function renderQuiz(){
+  const pips=document.getElementById('quiz-pips');
+  pips.innerHTML=QUIZ.map((_,i)=>`<div class="quiz-pip ${i<qIdx?'done':i===qIdx?'active':''}"></div>`).join('');
+  if(qIdx>=QUIZ.length){
+    let msg='';
+    if(qScore===QUIZ.length)msg='🎖 Parfait — Vous maîtrisez les procédures ZA !';
+    else if(qScore>=5)msg='✅ Bon résultat — Relisez les points manqués.';
+    else msg='⚠ Formation à reprendre avant déploiement.';
+    document.getElementById('quiz-container').innerHTML=`<div class="quiz-score"><div class="score-num">${qScore}<span style="font-size:1.5rem;color:var(--text2)">/${QUIZ.length}</span></div><p style="margin-top:.8rem;color:var(--text2)">${msg}</p><button onclick="qIdx=0;qScore=0;qAnswered=false;renderQuiz()" style="margin-top:1.5rem;background:var(--green);color:#000;border:none;padding:.7rem 2rem;font-size:.85rem;font-weight:700;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.07em">↺ Recommencer</button></div>`;
+    return;
+  }
+  const q=QUIZ[qIdx];
+  document.getElementById('quiz-container').innerHTML=`
+    <div class="quiz-q"><span class="q-num">Question ${qIdx+1} / ${QUIZ.length}</span>${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="quizAnswer(this,${i})">${o}</button>`).join('')}</div>
+    <div class="quiz-feedback" id="qfb"></div>
+    <div class="quiz-nav"><button id="qnext" onclick="qIdx++;qAnswered=false;renderQuiz()" disabled>Question suivante →</button></div>`;
+  qAnswered=false;
+}
+
+function quizAnswer(btn,idx){
+  if(qAnswered)return;
+  qAnswered=true;
+  const q=QUIZ[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  if(idx===q.ans){btn.classList.add('correct');qScore++;}
+  else{btn.classList.add('wrong');document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');}
+  const fb=document.getElementById('qfb');
+  fb.className='quiz-feedback show '+(idx===q.ans?'ok':'ko');
+  fb.textContent=(idx===q.ans?'✓ Correct — ':'✗ Incorrect — ')+q.exp;
+  document.getElementById('qnext').disabled=false;
+}
+
+renderQuiz();
+
+// ── YEAR ──
+document.getElementById('year').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
